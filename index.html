@@ -1,0 +1,1697 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi UAS UT - ESPA4314 Perekonomian Indonesia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .header-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Custom scrollbar for question grid */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.5);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- TOP HEADER -->
+    <header class="bg-gradient-to-r from-blue-900 to-indigo-950 text-white shadow-md border-b-4 border-yellow-400 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-yellow-400 text-blue-900 p-2.5 rounded-lg font-extrabold text-xl tracking-wider shadow-inner header-font">
+                    UT
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight header-font tracking-wide">SIMULASI UAS INTERAKTIF</h1>
+                    <p class="text-xs text-yellow-300 font-medium">ESPA4314 Perekonomian Indonesia (3 SKS)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                <!-- Mode Selector -->
+                <div class="bg-blue-950/60 p-1 rounded-lg border border-blue-800/80 flex gap-1">
+                    <button id="btnModeLatihan" onclick="switchMode('latihan')" class="px-3 py-1 text-xs font-semibold rounded transition-all bg-yellow-400 text-blue-950">
+                        Mode Latihan
+                    </button>
+                    <button id="btnModeUjian" onclick="switchMode('ujian')" class="px-3 py-1 text-xs font-semibold rounded transition-all text-slate-300 hover:text-white">
+                        Mode Ujian UT
+                    </button>
+                </div>
+
+                <!-- Timer -->
+                <div id="timerContainer" class="hidden flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3.5 py-1.5 rounded-lg text-red-200">
+                    <svg class="w-4 h-4 animate-pulse text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="txtTimer" class="font-mono font-bold tracking-wider text-sm">90:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 flex flex-col lg:flex-row gap-6">
+        
+        <!-- LEFT PANEL: QUESTION CARD -->
+        <div class="flex-grow lg:w-3/4 flex flex-col gap-4">
+            
+            <!-- Quick Progress Bar -->
+            <div class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200/80 flex items-center justify-between gap-4">
+                <div class="flex-grow">
+                    <div class="flex justify-between text-xs text-slate-500 mb-1.5 font-medium">
+                        <span>Progres Pengerjaan</span>
+                        <span id="txtProgressPercent">0% (0 dari 100 Soal)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="text-xs text-slate-400 block">Nilai Sementara</span>
+                    <span id="txtCurrentScore" class="font-bold text-lg text-blue-900">-</span>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div id="questionCard" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col gap-6 relative min-h-[400px]">
+                
+                <!-- Category/Module tag -->
+                <div class="flex justify-between items-start gap-4">
+                    <span id="lblQuestionModule" class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg tracking-wide border border-blue-100 uppercase">
+                        Modul 1: Sistem Ekonomi
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <button id="btnBookmark" onclick="toggleBookmark()" class="text-slate-400 hover:text-yellow-500 transition-colors p-1.5 hover:bg-slate-100 rounded-lg" title="Tandai ragu-ragu">
+                            <svg class="w-6 h-6" fill="none" id="bookmarkIcon" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <div>
+                    <h3 class="text-xs sm:text-sm font-semibold text-blue-900 tracking-wider uppercase mb-1">SOAL NOMOR <span id="lblQuestionNum">1</span></h3>
+                    <p id="lblQuestionText" class="text-slate-800 text-base sm:text-lg font-medium leading-relaxed">
+                        Loading soal...
+                    </p>
+                </div>
+
+                <!-- Answer Options Grid -->
+                <div id="optionsContainer" class="flex flex-col gap-3">
+                    <!-- Dynamic generation of options -->
+                </div>
+
+                <!-- Explanation Area (Revealed only in practice mode or after grading) -->
+                <div id="explanationContainer" class="hidden bg-emerald-50 border border-emerald-200 p-5 rounded-xl flex flex-col gap-2 transition-all">
+                    <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        KUNCI JAWABAN & PENJELASAN
+                    </div>
+                    <p id="lblCorrectAnswerText" class="text-slate-700 text-sm font-semibold mb-1"></p>
+                    <p id="lblExplanationText" class="text-slate-600 text-sm leading-relaxed"></p>
+                </div>
+
+                <!-- Navigation Controls inside Card -->
+                <div class="flex justify-between items-center pt-4 border-t border-slate-100 mt-auto">
+                    <button id="btnPrev" onclick="prevQuestion()" class="px-4 py-2 text-sm font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Kembali
+                    </button>
+                    
+                    <button id="btnAction" onclick="handleActionButton()" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/10 transition-all flex items-center gap-2">
+                        <span id="txtBtnAction">Selanjutnya</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: NAVIGATION GRID & MODULE STATS -->
+        <div class="lg:w-1/4 flex flex-col gap-4">
+            
+            <!-- Quick UT Info / Stats -->
+            <div class="bg-gradient-to-br from-yellow-400 to-amber-400 text-blue-950 p-4.5 rounded-2xl shadow-sm border border-yellow-300">
+                <h3 class="font-bold text-sm tracking-wide uppercase header-font mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Panduan UAS UT
+                </h3>
+                <ul class="text-xs space-y-1.5 font-medium leading-relaxed">
+                    <li>• Skor kelulusan minimal di UT adalah 30% dari total soal.</li>
+                    <li>• Pastikan membaca dengan teliti karena soal dikembangkan dengan studi kasus riil perekonomian nasional.</li>
+                    <li>• Gunakan tombol <span class="bg-yellow-500 text-white px-1 py-0.5 rounded text-[10px]">Ragu-Ragu</span> untuk meninjau ulang soal di panel.</li>
+                </ul>
+            </div>
+
+            <!-- Question Numbers Navigator Grid -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-sm text-slate-800 tracking-wide header-font uppercase">Peta Soal (1-100)</h3>
+                    <span id="lblFilterActive" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">Semua</span>
+                </div>
+
+                <!-- Module Filter Dropdown -->
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 block uppercase mb-1">Filter Berdasarkan Bab</label>
+                    <select id="ddlModuleFilter" onchange="filterQuestions(this.value)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-600 focus:outline-none focus:border-blue-500">
+                        <option value="all">Semua Soal (100 Butir)</option>
+                        <option value="Modul 1">Modul 1: Sistem & Reformasi Ekonomi</option>
+                        <option value="Modul 2">Modul 2: Pertanian & Industrialisasi</option>
+                        <option value="Modul 3">Modul 3: Keuangan & Perbankan</option>
+                        <option value="Modul 4">Modul 4: Investasi & Perdagangan</option>
+                        <option value="Modul 5">Modul 5: Koperasi & Privatisasi</option>
+                        <option value="Modul 8">Modul 8: Otonomi Daerah & Pembangunan</option>
+                    </select>
+                </div>
+
+                <!-- Grid wrapper with scroll height -->
+                <div class="grid grid-cols-5 sm:grid-cols-10 lg:grid-cols-5 gap-1.5 max-h-[220px] overflow-y-auto pr-1 custom-scrollbar" id="gridNavigator">
+                    <!-- Dynamic numbers generated from 1 to 100 -->
+                </div>
+
+                <!-- Legends -->
+                <div class="flex flex-wrap gap-x-3 gap-y-1.5 pt-3 border-t border-slate-100 text-[10px] font-bold text-slate-500 uppercase">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-slate-100 border border-slate-200 rounded"></span>
+                        Belum
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-blue-600 rounded"></span>
+                        Terjawab
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 bg-yellow-400 rounded"></span>
+                        Ragu-Ragu
+                    </div>
+                    <div class="flex items-center gap-1.5 mode-latihan-only">
+                        <span class="w-3 h-3 bg-emerald-500 rounded"></span>
+                        Benar
+                    </div>
+                    <div class="flex items-center gap-1.5 mode-latihan-only">
+                        <span class="w-3 h-3 bg-rose-500 rounded"></span>
+                        Salah
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button id="btnSubmitExam" onclick="confirmSubmit()" class="w-full mt-2 bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-950 hover:to-indigo-950 text-white font-extrabold text-xs tracking-wider py-3 rounded-xl transition-all shadow-md shadow-blue-900/10 uppercase">
+                    Selesai & Kumpulkan UAS
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-blue-950 text-slate-400 text-xs py-4 text-center border-t border-blue-900 mt-6">
+        <p>© 2026 Universitas Terbuka Sim-UAS ESPA4314. Dioptimalkan untuk pembelajaran mandiri.</p>
+    </footer>
+
+    <!-- MODAL / DIALOGS (Zero alerts constraint) -->
+    <div id="modalOverlay" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <!-- Dialog Content -->
+        <div id="modalContent" class="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6 flex flex-col gap-4 transform scale-95 transition-all">
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-900 header-font uppercase">Judul Modal</h3>
+            <p id="modalBody" class="text-slate-600 text-sm leading-relaxed">Isi modal disini.</p>
+            <div id="modalActions" class="flex justify-end gap-3 mt-2">
+                <!-- Action Buttons injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN OVERLAY -->
+    <div id="resultScreen" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 overflow-y-auto p-4 flex items-center justify-center">
+        <div class="bg-white max-w-3xl w-full rounded-3xl shadow-2xl p-6 sm:p-10 my-8 flex flex-col gap-8 transform transition-all">
+            
+            <!-- Result Header -->
+            <div class="text-center flex flex-col items-center gap-2">
+                <div class="w-20 h-20 bg-blue-50 text-blue-900 rounded-full flex items-center justify-center shadow-inner mb-2">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-blue-950 header-font tracking-wide">LAPORAN HASIL SIMULASI UAS</h2>
+                <p class="text-xs text-slate-500 font-bold tracking-wider uppercase">ESPA4314 • PEREKONOMIAN INDONESIA</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                    <span class="text-xs text-slate-400 block font-bold mb-1 uppercase">Nilai Akhir</span>
+                    <span id="lblResultScore" class="text-3xl font-extrabold text-blue-900 header-font">0.0</span>
+                    <span class="text-[10px] text-slate-500 block mt-1">Skala 100</span>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                    <span class="text-xs text-emerald-600 block font-bold mb-1 uppercase">Jawaban Benar</span>
+                    <span id="lblResultCorrect" class="text-3xl font-extrabold text-emerald-700 header-font">0</span>
+                    <span class="text-[10px] text-emerald-600 block mt-1">Dari 100 Soal</span>
+                </div>
+                <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100 text-center">
+                    <span class="text-xs text-rose-600 block font-bold mb-1 uppercase">Jawaban Salah</span>
+                    <span id="lblResultWrong" class="text-3xl font-extrabold text-rose-700 header-font">0</span>
+                    <span class="text-[10px] text-rose-600 block mt-1">Dari 100 Soal</span>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100 text-center">
+                    <span class="text-xs text-amber-600 block font-bold mb-1 uppercase">Predikat</span>
+                    <span id="lblResultGrade" class="text-3xl font-extrabold text-amber-700 header-font">E</span>
+                    <span id="lblResultStatus" class="text-[10px] font-bold block mt-1 uppercase text-slate-500">MENGULANG</span>
+                </div>
+            </div>
+
+            <!-- Competency Analysis Section -->
+            <div class="border-t border-slate-100 pt-6">
+                <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wide header-font mb-4">Analisis Kompetensi per Bab (Modul)</h3>
+                <div class="flex flex-col gap-3.5" id="competencyBars">
+                    <!-- Dynamic analysis injected here -->
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100">
+                <button onclick="reviewWrongAnswers()" class="flex-grow py-3 px-5 text-sm font-bold bg-blue-50 text-blue-900 rounded-xl hover:bg-blue-100 transition-all text-center">
+                    Tinjau Jawaban Anda
+                </button>
+                <button onclick="restartExam()" class="flex-grow py-3 px-5 text-sm font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/10 text-center">
+                    Ulangi Ujian Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT -->
+    <script>
+        // 100 Comprehensive Multiple Choice Questions derived directly from ESPA4314 Perekonomian Indonesia modules
+        const questionBank = [
+            {
+                id: 1,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Pilar penyangga utama dalam Sistem Ekonomi Pancasila sebagaimana diamanatkan Pasal 33 UUD 1945 Ayat 1 menyatakan bahwa perekonomian disusun sebagai usaha bersama berdasarkan asas...",
+                options: ["Keuntungan maksimal", "Kekeluargaan", "Kolektivitas total", "Persaingan bebas"],
+                answer: 1,
+                explanation: "Pasal 33 ayat 1 menetapkan asas kekeluargaan sebagai dasar penyusunan perekonomian nasional, yang secara struktural tercermin pada bentuk usaha Koperasi sebagai representasi demokrasi ekonomi."
+            },
+            {
+                id: 2,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Lahirnya sistem ekonomi kapitalis modern pada abad ke-17 tidak dapat dilepaskan dari pengaruh pemikiran bapak ekonomi dunia yaitu...",
+                options: ["John Maynard Keynes", "Karl Marx", "Adam Smith", "David Ricardo"],
+                answer: 2,
+                explanation: "Adam Smith mengagas konsep pasar bebas (laissez-faire) dan mekanisme tangan tidak terlihat (invisible hand) dalam bukunya 'The Wealth of Nations' (1776) yang menjadi pilar kapitalisme dunia."
+            },
+            {
+                id: 3,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Perekonomian di mana instrumen produksi dikuasai secara mutlak oleh negara dan seluruh kegiatan produksi dipandu secara terpusat oleh perencanaan negara disebut...",
+                options: ["Sistem Ekonomi Sosialis", "Sistem Ekonomi Kapitalis", "Sistem Ekonomi Campuran", "Sistem Ekonomi Pancasila"],
+                answer: 0,
+                explanation: "Sistem ekonomi sosialis (etatisme/komando) melandasi kegiatannya pada falsafah kolektivisme di mana kepemilikan individu dihapuskan demi pemilikan bersama oleh negara."
+            },
+            {
+                id: 4,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Negara-negara modern saat ini umumnya mempraktikkan sistem ekonomi campuran. Konsep intervensi pemerintah dalam sistem campuran untuk memperbaiki kegagalan pasar merupakan kontribusi pemikiran dari...",
+                options: ["Thomas Malthus", "John Maynard Keynes", "Milton Friedman", "Joseph Schumpeter"],
+                explanation: "John Maynard Keynes mengajukan gagasan perlunya intervensi pemerintah (kebijakan fiskal & moneter) untuk memulihkan pasar dari depresi besar, melahirkan konsep welfare state.",
+                answer: 1
+            },
+            {
+                id: 5,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Sebelum dinasionalisasi menjadi Bank Indonesia pada tahun 1953, fungsi bank sentral di wilayah jajahan Belanda dipegang oleh lembaga keuangan kolonial yaitu...",
+                options: ["De Javasche Bank", "Nederlandsch-Indische Handelsbank", "NHM (Nederlandsche Handel-Maatschappij)", "De Javasche Credit Bank"],
+                answer: 0,
+                explanation: "De Javasche Bank didirikan kolonial Belanda untuk memonopoli sirkulasi uang rupiah perak di Nusantara, yang kemudian dinasionalisasi pasca kemerdekaan menjadi BI."
+            },
+            {
+                id: 6,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Pemerintah kolonial Belanda mengundang korporasi swasta menyewa lahan perkebunan rakyat dalam jangka waktu lama yang mematikan persaingan rakyat domestik melalui regulasi...",
+                options: ["Undang-Undang Agraria (Agrarische Wet) 1870", "Sistem Tanam Paksa (Culture Stelsel) 1830", "Undang-Undang Gula (Suiker Wet) 1870", "Devide et Impera Act"],
+                answer: 0,
+                explanation: "Agrarische Wet 1870 menggeser monopoli negara (tanam paksa) ke arah kapitalisme liberal swasta, di mana perkebunan besar swasta asing mulai merambah Nusantara."
+            },
+            {
+                id: 7,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Konsepsi Hatta mengenai Demokrasi Ekonomi menggariskan bahwa produksi dikerjakan oleh semua dan untuk semua, yang pengelolaannya diawasi langsung oleh rakyat melalui...",
+                options: ["Koperasi", "Badan Usaha Milik Negara", "Perusahaan Swasta Terbuka", "Otoritas Jasa Keuangan"],
+                answer: 0,
+                explanation: "Bung Hatta menyatakan Koperasi adalah wadah yang paling pas untuk menegakkan kedaulatan ekonomi rakyat karena keanggotaannya bersifat sukarela dan setara."
+            },
+            {
+                id: 8,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Pada periode akhir Orde Lama (1959-1966), kemunduran kepemimpinan bersama memicu dijalankannya sistem ekonomi etatisme yang berujung pada kekacauan moneter berupa hiperinflasi sebesar...",
+                options: ["150 persen", "300 persen", "650 persen", "1000 persen"],
+                answer: 2,
+                explanation: "Hiperinflasi tahun 1966 mencapai puncaknya di angka 650% akibat pencetakan uang besar-besaran untuk membiayai proyek mercusuar tanpa ditopang cadangan devisa yang kuat."
+            },
+            {
+                id: 9,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Paradigma pembangunan era Orde Baru diringkas dalam konsep 'Trilogi Pembangunan'. Tiga pilar tersebut mencakup hal berikut, kecuali...",
+                options: ["Pertumbuhan ekonomi yang tinggi", "Pemerataan pembangunan dan hasil-hasilnya", "Stabilitas nasional yang sehat dan dinamis", "Liberalisasi kepemilikan aset vital negara"],
+                answer: 3,
+                explanation: "Trilogi Pembangunan berfokus pada Pertumbuhan, Pemerataan, dan Stabilitas. Liberalisasi kepemilikan aset vital tidak termasuk, walau pada praktiknya terjadi kapitalisme kroni."
+            },
+            {
+                id: 10,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Sistem perekonomian Indonesia saat ini dinilai mempraktikkan dualisme ekonomi. Yang dimaksud dengan dualisme ekonomi di Indonesia adalah...",
+                options: ["Sektor pertanian menggunakan dua mata uang berbeda", "Pemerintah mengambil kebijakan kapitalis di satu sisi, namun mayoritas rakyat mempraktikkan ekonomi kerakyatan", "Dominasi mutlak BUMN versus Koperasi tanpa adanya sektor swasta", "Perbedaan sistem perbankan syariah dan perbankan konvensional yang setara"],
+                answer: 1,
+                explanation: "Dualisme ekonomi merujuk pada kontradiksi struktural di mana regulasi makro condong ke liberal/kapitalis, sedangkan unit riil mikro bertahan dengan ekonomi kerakyatan lokal."
+            },
+            {
+                id: 11,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Manakah yang merupakan salah satu dari 5 prinsip utama Sistem Ekonomi Pancasila menurut Profesor Mubyarto?",
+                options: ["Kewajiban kepemilikan saham asing 90% di semua sektor industri", "Semangat nasionalisme ekonomi untuk mewujudkan kemandirian nasional", "Peniadaan peran Koperasi dalam kegiatan mikro perkotaan", "Penyerahan penentuan seluruh harga barang vital kepada mekanisme pasar bebas"],
+                answer: 1,
+                explanation: "Prinsip ketiga Sistem Ekonomi Pancasila adalah nasionalisme ekonomi yang kuat, tangguh, dan mandiri guna membendung hegemoni kapitalisme global."
+            },
+            {
+                id: 12,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Depresiasi mata uang rupiah yang sangat tajam pada tahun 1997 dipicu oleh ketidakseimbangan pasokan dan permintaan valas. Faktor internal penyebab krisis moneter tersebut adalah...",
+                options: ["Defisit transaksi berjalan yang cenderung membesar dan utang luar negeri swasta yang tidak terkontrol", "Gejolak politik perang dingin di kawasan Eropa Timur", "Menguatnya nilai tukar yen Jepang terhadap dolar Amerika secara global", "Kebijakan surplus APBN yang dialokasikan penuh untuk dana cadangan sosial"],
+                answer: 0,
+                explanation: "Secara internal, krisis didorong oleh membesarnya defisit transaksi berjalan, utang luar negeri swasta jangka pendek yang tidak terproteksi hedging, serta tingkat inflasi kumulatif tinggi."
+            },
+            {
+                id: 13,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Menjelang krisis 1997, inflasi kumulatif Indonesia (1992-1996) mencapai 39,1%, namun depresiasi rupiah ditahan otoritas moneter hanya sebesar 15,57%. Kondisi ini mengakibatkan rupiah mengalami...",
+                options: ["Under-valuation (terlalu rendah dibanding nilai riilnya)", "Over-valuation (terlalu tinggi dibanding nilai riilnya)", "Devaluasi agresif otomatis oleh bank sentral", "Stabilitas absolut tanpa potensi spekulasi pasar"],
+                answer: 1,
+                explanation: "Karena nilai tukar dijaga ketat oleh BI (crawling peg), rupiah mengalami over-valued sekitar 9,2%, mengundang spekulan valas menyerang rupiah ketika cadangan devisa menipis."
+            },
+            {
+                id: 14,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Penyebab kegagalan pemulihan ekonomi Indonesia yang lambat dibanding Malaysia dan Thailand pasca krisis 1997 adalah kerusakan sistemik, lemahnya kemauan politik, serta campur tangan kelompok kepentingan atau...",
+                options: ["Vested interest group di kalangan elit kekuasaan", "Tekanan militer regional ASEAN", "Kebijakan dewan moneter unilateral PBB", "Dominasi pembiayaan lembaga keuangan syariah mikro"],
+                answer: 0,
+                explanation: "Adanya 'vested interest group' atau kelompok kepentingan elit politik menghalangi proses restrukturisasi perbankan yang bersih dan adekuat demi menyelamatkan kroni bisnisnya."
+            },
+            {
+                id: 15,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Dua presiden di era reformasi yang tercatat berhasil menurunkan nilai nominal nominal utang luar negeri Indonesia masing-masing sebesar US$ 3 miliar dan US$ 9 miliar adalah...",
+                options: ["B.J. Habibie dan Abdurrahman Wahid", "Megawati Soekarnoputri dan Susilo Bambang Yudhoyono", "Soeharto dan B.J. Habibie", "Abdurrahman Wahid dan Megawati Soekarnoputri"],
+                answer: 0,
+                explanation: "Berdasarkan dokumen modul, hanya Presiden B.J. Habibie dan Presiden Abdurrahman Wahid (Gus Dur) yang berhasil menurunkan utang luar negeri masing-masing sebesar US$ 3 miliar dan US$ 9 miliar."
+            },
+            {
+                id: 16,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Sebelum krisis 1997, Indonesia dinilai sukses oleh Bank Dunia karena pertumbuhan ekonominya yang tinggi. Namun, pujian tersebut dikritik karena mengabaikan kenyataan bahwa...",
+                options: ["Pembangunan merusak alam dan membebani negara dengan utang luar negeri yang sangat besar", "Rasio tabungan masyarakat melampaui batas wajar bank nasional", "Seluruh modal perbankan dikuasai penuh oleh koperasi tani kecil", "Pemerintah menutup seluruh investasi portofolio asing"],
+                answer: 0,
+                explanation: "Perekonomian Orde Baru tumbuh tinggi secara semu karena ditopang eksploitasi berlebih sumber daya alam dan jeratan akumulasi utang luar negeri, menjadikannya rentan roboh."
+            },
+            {
+                id: 17,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Dalam sejarah otonomi daerah, ketimpangan fiskal vertikal (vertical fiscal imbalance) yang tinggi pada masa Orde Baru ditunjukkan oleh angka ketergantungan anggaran daerah pada pusat sebesar...",
+                options: ["10 persen", "30 persen", "70 persen", "95 persen"],
+                answer: 2,
+                explanation: "Pada masa Orba, perbandingan antara PAD (Pendapatan Asli Daerah) dengan subsidi pusat berkisar 30% : 70%, yang menunjukkan ketergantungan keuangan daerah yang sangat ekstrem."
+            },
+            {
+                id: 18,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Guna mereformasi struktur moneter pasca krisis, pemerintah mengubah paradigma sistem kurs bebas menjadi sistem kurs mengambang bebas. Risiko terbesar sistem kurs bebas untuk negara berkembang adalah...",
+                options: ["Rentan terhadap serangan spekulasi global dan fluktuasi sosial-politik dalam negeri", "Mendorong monopoli mutlak perbankan daerah", "Menurunkan hasrat ekspor industri rumah tangga secara drastis", "Menghapus kewajiban pembayaran pajak perusahaan multinasional"],
+                answer: 0,
+                explanation: "Kurs bebas menuntut fundamental pasar finansial yang matang; jika diterapkan di negara rentan, fluktuasi sosial-politik kecil dapat dengan cepat memicu kepanikan dan pelemahan nilai tukar."
+            },
+            {
+                id: 19,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Dampak sosial langsung dari kebijakan likuidasi 16 bank swasta nasional pada bulan November 1997 tanpa adanya skema penjaminan simpanan yang memadai adalah...",
+                options: ["Meningkatnya kepercayaan publik kepada bank pemerintah secara signifikan", "Runtuhnya kepercayaan nasabah terhadap sistem perbankan nasional (rush money)", "Terjadinya surplus neraca berjalan yang menguntungkan ekspor", "Penurunan bunga deposito bank secara drastis ke level 2 persen"],
+                answer: 1,
+                explanation: "Likuidasi 16 bank memicu kepanikan massal (bank run/rush) karena nasabah khawatir dana simpanan mereka hilang, melumpuhkan fungsi intermediasi perbankan secara nasional."
+            },
+            {
+                id: 20,
+                module: "Modul 1: Sistem & Reformasi Ekonomi",
+                question: "Reformasi institusional yang mutlak dilakukan untuk mendukung pemulihan ekonomi nasional bebas dari ekonomi biaya tinggi (high-cost economy) adalah...",
+                options: ["Penerapan birokrasi dan institusi hukum yang bersih bebas KKN", "Melarang pendirian kantor cabang bank swasta asing", "Pemberian hak subsidi monopoli bagi korporasi konglomerat", "Penghapusan pajak pendapatan dari sektor pertambangan swasta"],
+                answer: 0,
+                explanation: "Kepastian hukum dan birokrasi bebas KKN memotong rantai pungutan liar dan biaya tidak resmi, sehingga meningkatkan efisiensi dan daya tarik investasi di Indonesia."
+            },
+            // MODUL 2: PERTANIAN & INDUSTRIALISASI (21-40)
+            {
+                id: 21,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Salah satu kebijakan harga di sektor pertanian untuk memberdayakan petani kecil adalah kebijakan harga dasar (floor price). Tujuan utama kebijakan harga dasar adalah...",
+                options: ["Melindungi konsumen perkotaan dari lonjakan harga pangan", "Meningkatkan pendapatan petani dan menjaga stabilitas harga saat panen raya", "Meminimalkan devisa impor komoditi baja nasional", "Membatasi perluasan kepemilikan lahan pertanian mandiri"],
+                answer: 1,
+                explanation: "Kebijakan harga dasar (floor price) mencegah jatuhnya harga komoditas pertanian di tingkat petani ketika terjadi kelebihan pasokan (panen raya)."
+            },
+            {
+                id: 22,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Kebijakan struktural di sektor pertanian ditujukan untuk memperbaiki fondasi produksi jangka panjang petani kecil. Kebijakan ini diwujudkan dalam bentuk...",
+                options: ["Pemberian kredit konsumtif jangka pendek", "Reforma agraria, pengenalan alat pertanian modern, dan perbaikan sarana irigasi", "Penentuan bea ekspor produk industri otomotif", "Penurunan tarif pajak pertambahan nilai (PPN) produk impor mewah"],
+                answer: 1,
+                explanation: "Kebijakan struktural berfokus pada perbaikan input fisik dan legalitas produksi tani seperti distribusi pemilikan lahan (agraria) dan perbaikan sarana pertanian."
+            },
+            {
+                id: 23,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Era industrialisasi modern di Indonesia ditandai dengan dibukanya peluang lebar bagi modal asing melalui pengesahan regulasi bersejarah di awal Orde Baru yaitu...",
+                options: ["UU No. 1 Tahun 1967 tentang Penanaman Modal Asing (PMA)", "UU No. 5 Tahun 1960 tentang Peraturan Dasar Pokok-Pokok Agraria", "PP No. 20 Tahun 1994 tentang Pengalihan Saham Perbankan Daerah", "UU No. 25 Tahun 2007 tentang Penanaman Modal Nasional"],
+                answer: 0,
+                explanation: "UU No. 1 Tahun 1967 memicu liberalisasi untuk menarik aliran modal, teknologi, dan penyerapan tenaga kerja asing guna menggairahkan ekonomi yang lesu peninggalan Orde Lama."
+            },
+            {
+                id: 24,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Sejak awal 1970-an hingga pertengahan 1980-an, pemerintah Indonesia mengembangkan strategi Industri Substitusi Impor (ISI). Strategi ini ditujukan untuk...",
+                options: ["Memaksimalkan ekspor komoditi manufaktur berteknologi tinggi ke Eropa", "Menghemat devisa dengan mengembangkan industri dalam negeri penghasil barang pengganti impor", "Menghapus kewajiban kepemilikan saham pengusaha lokal", "Mendorong monopoli penuh industri pertanian rakyat oleh modal asing"],
+                answer: 1,
+                explanation: "Strategi ISI bertujuan menekan impor barang konsumsi dengan memproduksinya secara mandiri di dalam negeri, guna menghemat cadangan devisa negara."
+            },
+            {
+                id: 25,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Penerapan strategi ISI di Indonesia dinilai kurang berhasil dan justru menguras devisa karena industri dalam negeri yang didorong memiliki karakteristik...",
+                options: ["Sangat mandiri dan menggunakan 100% bahan baku lokal", "Menghasilkan barang mewah padat modal yang komponen/input antaranya tetap harus diimpor", "Sistem manajemennya dikelola penuh oleh koperasi tani tradisional", "Berfokus penuh pada ekspor komoditas pertanian organik mentah"],
+                answer: 1,
+                explanation: "Kegagalan ISI terjadi karena industri yang tumbuh justru padat modal dan sangat tergantung pada impor barang modal serta input antara dari negara maju."
+            },
+            {
+                id: 26,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Menurunnya penerimaan devisa akibat jatuhnya harga minyak bumi pada awal tahun 1980-an mendorong pemerintah mengubah strategi industrialisasi dari ISI menjadi...",
+                options: ["Sistem Ekonomi Sosialis Komando", "Strategi Industri Promosi Ekspor (IPE)", "Strategi Nasionalisasi Perbankan Asing", "Sistem Tanam Paksa Gaya Baru"],
+                answer: 1,
+                explanation: "Jatuhnya harga minyak (oil shock) memaksa pemerintah memacu ekspor non-migas melalui strategi Industri Promosi Ekspor (IPE) dengan melonggarkan perizinan PMA dan PMDN."
+            },
+            {
+                id: 27,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Kebijakan kepemilikan modal asing (PMA) paling ekspansif dikeluarkan pemerintah pada masa reformasi melalui PP No. 20/1994 yang mengizinkan kepemilikan saham PMA maksimal...",
+                options: ["20 persen", "49 persen", "75 persen", "95 persen"],
+                answer: 3,
+                explanation: "PP No. 20/1994 membolehkan kepemilikan modal asing (PMA) hingga maksimal 95%, yang menandai babak baru deregulasi investasi asing secara besar-besaran."
+            },
+            {
+                id: 28,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Mengapa posisi pertumbuhan industrialisasi Indonesia dinilai lambat dibandingkan negara tetangga seperti Malaysia dan Thailand pada periode 1980-an hingga 2000-an?",
+                options: ["Karena Indonesia menolak segala bentuk kerja sama perdagangan internasional", "Karena kelemahan peningkatan SDM, infrastruktur yang timpang, dan birokrasi investasi yang lambat", "Karena koperasi di Indonesia menguasai 99% aset industri manufaktur berat", "Karena nilai tukar rupiah terlalu kuat dibanding dolar AS"],
+                answer: 1,
+                explanation: "Keterlambatan industri dipicu oleh faktor internal: produktivitas SDM yang rendah, kurangnya infrastruktur memadai di luar Jawa, serta prosedur investasi yang berbelit-belit."
+            },
+            {
+                id: 29,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Tiga program pengiriman karya siswa berbakat ke luar negeri era 1980-an yang dipimpin B.J. Habibie untuk meningkatkan kualitas SDM industri dirangkum dalam program...",
+                options: ["OFP, STMDP, dan STAID", "BLBI, API, dan OJK", "KUD, KSP, dan Koppas", "ISI, IPE, dan PMA"],
+                answer: 0,
+                explanation: "Program tersebut adalah Overseas Fellowship Program (OFP), Science and Technology for Manpower Development Program (STMDP), dan Science and Technology Advance for Industrial Development (STAID)."
+            },
+            {
+                id: 30,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Pembangunan infrastruktur industri era Orde Baru hingga kini dinilai timpang karena terkonsentrasi di Pulau Jawa. Dampak utama ketimpangan infrastruktur ini adalah...",
+                options: ["Investor swasta asing enggan menanamkan modalnya di luar Jawa kecuali di sektor ekstraktif pertambangan", "Meningkatnya pendapatan asli daerah seluruh kabupaten di luar Jawa secara drastis", "Terhapusnya praktik konglomerasi industri manufaktur di Pulau Jawa", "Seluruh modal perbankan nasional terserap penuh ke sektor mikro pedesaan"],
+                answer: 0,
+                explanation: "Minimnya infrastruktur pendukung di luar Jawa membuat investor manufaktur terkonsentrasi di Jawa, sementara luar Jawa hanya menarik investasi ekstraktif tambang/energi."
+            },
+            {
+                id: 31,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Masalah struktural industri nasional yang ditandai dengan lemahnya keterkaitan vertikal antarsektor industri hulu dan hilir serta tingginya ketergantungan bahan baku impor diistilahkan dengan...",
+                options: ["Deep industry", "Shallow industry (Struktur industri yang dangkal)", "Balanced industry", "Sistem Monopoli Kerakyatan"],
+                answer: 1,
+                explanation: "Shallow industry menggambarkan kondisi di mana struktur industri dalam negeri tidak mengakar kuat secara vertikal, rentan roboh jika terjadi gejolak nilai tukar impor."
+            },
+            {
+                id: 32,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Dalam estimasi pembagian kepemilikan aset akhir tahun 2000-an, sektor yang kepemilikannya dikuasai 100% oleh pemerintah karena menyangkut utilitas publik vital adalah...",
+                options: ["Sektor Konstruksi swasta", "Sektor Utilitas (Listrik dan Air Bersih)", "Sektor Pertanian pangan mandiri", "Sektor Pariwisata domestik"],
+                answer: 1,
+                explanation: "Sektor Utilitas (seperti PLN dan PDAM) dikuasai 100% oleh pemerintah sesuai amanat Pasal 33 UUD 1945 bahwa cabang produksi penting dikuasai negara."
+            },
+            {
+                id: 33,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Dalam sejarah aliansi ekonomi Orde Baru, asosiasi-asosiasi pengusaha besar bentukan konglomerat memperoleh proteksi tinggi dari pemerintah. Dampak negatif proteksi berlebih ini adalah...",
+                options: ["Membuat industri besar bekerja tidak efisien dan rentan terhadap gejolak persaingan global", "Mendorong berkembangnya daya saing koperasi pertanian secara masif", "Menghilangkan kesenjangan pendapatan antara buruh dan pemilik modal", "Mewujudkan kemandirian teknologi manufaktur secara instan"],
+                answer: 0,
+                explanation: "Proteksi tinggi (seperti tarif impor tinggi & monopoli lisensi) menjauhkan industri dari iklim kompetisi, memicu inefisiensi dan ketidakmampuan bersaing di pasar global."
+            },
+            {
+                id: 34,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Salah satu usulan reformasi teknologi industri adalah regulasi alih teknologi (joint venture) yang sukses diterapkan oleh negara China. Kebijakan ini mewajibkan investor asing untuk...",
+                options: ["Membagikan sebagian porsi saham teknologi/R&D kepada mitra perusahaan lokal", "Membayar pajak pertambahan nilai sebesar 95 persen", "Melarang penggunaan tenaga kerja lokal di jajaran manajerial", "Menutup seluruh unit penelitian dan pengembangan daerah"],
+                answer: 0,
+                explanation: "China mewajibkan sharing teknologi (seperti kasus Piaggio dengan mitra lokal) agar terjadi proses transfer pengetahuan (transfer of technology) yang nyata."
+            },
+            {
+                id: 35,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Sektor pertanian dan industri rakyat yang berbasis koperasi terbukti tangguh menghadapi gejolak krisis eksternal karena memiliki keunggulan spesifik yaitu...",
+                options: ["Mengandalkan pasokan bahan baku domestik dan tidak tergantung pada utang valas", "Mendapat kucuran dana BLBI paling besar dibandingkan perbankan", "Memiliki lisensi impor barang mewah bersubsidi dari pemerintah", "Menggunakan mesin produksi dengan tingkat konsumsi teknologi tercanggih"],
+                answer: 0,
+                explanation: "Industri rakyat menggunakan input lokal (domestik) serta tidak terpapar risiko selisih kurs karena tidak bergantung pada utang luar negeri berdenominasi valas."
+            },
+            {
+                id: 36,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Mengapa kemudahan prosedur investasi di Indonesia dinilai sangat lambat dibanding Singapura sebelum reformasi birokrasi dijalankan? Perbandingannya adalah...",
+                options: ["Indonesia membutuhkan waktu 151 hari, sedangkan Singapura hanya 8 hari", "Indonesia membutuhkan waktu 30 hari, sedangkan Singapura 151 hari", "Indonesia membutuhkan waktu 8 hari, sedangkan Singapura 30 hari", "Kedua negara memiliki prosedur perizinan instan selama 1 hari kerja"],
+                answer: 0,
+                explanation: "Berdasarkan modul, panjangnya rantai birokrasi membuat perizinan investasi di Indonesia mencapai rata-rata 151 hari, jauh tertinggal dari Singapura yang hanya butuh waktu 8 hari."
+            },
+            {
+                id: 37,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Dalam jangka pendek, investasi memiliki peran penting bagi perekonomian nasional melalui pengaruh langsungnya terhadap pilar agregat makro berupa...",
+                options: ["Pengurangan jumlah uang beredar secara sepihak", "Peningkatan permintaan agregat yang mendorong output dan kesempatan kerja", "Pemberlakuan sanering terhadap tabungan rakyat kecil", "Peningkatan rasio pajak ekspor komoditi kerajinan kayu"],
+                answer: 1,
+                explanation: "Secara jangka pendek, suntikan investasi meningkatkan pengeluaran pembangunan (permintaan agregat) yang menyerap tenaga kerja dan menaikkan pendapatan masyarakat."
+            },
+            {
+                id: 38,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Strategi industrialisasi IPE (Industri Promosi Ekspor) yang agresif di akhir 1980-an mendorong terjadinya pertumbuhan di sektor tertentu, terutama dalam kategori...",
+                options: ["Sektor industri ekstraktif minyak bumi baru", "Sektor industri manufaktur padat karya berorientasi pasar ekspor", "Sektor pertanian rakyat bebas pupuk kimia", "Sektor perbankan daerah khusus syariah tanpa bunga"],
+                answer: 1,
+                explanation: "Strategi IPE berhasil memicu ledakan ekspor non-migas melalui manufaktur ringan seperti tekstil, pakaian jadi, alas kaki, dan kayu olahan yang padat karya."
+            },
+            {
+                id: 39,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Struktur kepemilikan manufaktur non-migas nasional di akhir era Orde Baru memperlihatkan pola integrasi vertikal konglomerat yang didukung oleh...",
+                options: ["Kredit likuiditas perbankan berisiko tinggi tanpa analisis kelayakan yang memadai", "Penyaluran modal hibah dari organisasi nirlaba internasional", "Pemberlakuan otonomi daerah yang melarang sentralisasi anggaran", "Pembatasan ekspor komoditi bahan tambang mentah secara total"],
+                answer: 0,
+                explanation: "Konglomerat Orba memiliki bank swasta sendiri untuk menghimpun dana publik yang kemudian disalurkan ke perusahaan terafiliasi mereka sendiri tanpa batas aman."
+            },
+            {
+                id: 40,
+                module: "Modul 2: Pertanian & Industrialisasi",
+                question: "Salah satu indikator lemahnya kemandirian industri nasional adalah kelesuan teknologi domestik, yang tercermin dari porsi alokasi dana penelitian dan pengembangan (R&D) yang...",
+                options: ["Sangat minimal dan didominasi oleh ketergantungan lisensi asing", "Melampaui porsi anggaran pendidikan nasional", "Dikelola penuh oleh kelompok usaha tani tradisional", "Dialokasikan penuh dalam APBD tingkat kabupaten"],
+                answer: 0,
+                explanation: "Rendahnya kandungan teknologi dalam negeri disebabkan sangat minimnya anggaran R&D nasional, membuat industri lokal sekadar menjadi perakit (assembling) lisensi luar."
+            },
+            // MODUL 3: KEUANGAN & PERBANKAN (41-60)
+            {
+                id: 41,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Pada periode Orde Lama tanggal 24 Agustus 1959, pemerintah mengeluarkan kebijakan pengetatan moneter ekstrem berupa sanering. Dampak sanering tersebut adalah...",
+                options: ["Memotong nilai pecahan uang kertas Rp500 dan Rp1.000 menjadi tinggal sepersepuluh nilainya", "Menggandakan simpanan nasabah di bank sebesar 10 kali lipat", "Menutup seluruh bank asing dan menyatukannya dalam koperasi", "Menghapus kewajiban pelaporan pajak ekspor secara nasional"],
+                answer: 0,
+                explanation: "Sanering 1959 memotong pecahan Rp500 dan Rp1.000 menjadi Rp50 dan Rp100 guna menekan jumlah uang beredar yang memicu gejolak inflasi."
+            },
+            {
+                id: 42,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Dalam kebijakan sanering 1959, pemerintah juga melakukan pembekuan simpanan nasabah di bank-bank swasta maupun pemerintah sebesar...",
+                options: ["10 persen untuk jumlah simpanan di bawah Rp5.000", "50 persen untuk simpanan tanpa batasan nominal", "90 persen untuk jumlah simpanan di atas Rp25.000", "100 persen untuk seluruh giro wajib milik pemerintah daerah"],
+                answer: 2,
+                explanation: "Kebijakan ekstrem membekukan 90% simpanan di atas Rp25.000 merugikan dunia perbankan (seperti kerugian BRI Rp230 juta) dan menghancurkan kepercayaan nasabah saat itu."
+            },
+            {
+                id: 43,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Paket Kebijakan Juni 1983 (Pakjun '83) merupakan tonggak awal deregulasi perbankan Indonesia yang ditujukan untuk mendorong ekspor non-migas dengan cara...",
+                options: ["Menerapkan prinsip manajemen bank yang berorientasi pasar dan menghapus pagu kredit", "Melarang pengalihan kepemilikan bank swasta kepada pihak asing", "Menurunkan nilai tukar rupiah secara unilateral hingga 500%", "Membekukan aktivitas kliring seluruh bank swasta di Jakarta"],
+                answer: 0,
+                explanation: "Pakjun '83 memberikan kebebasan bagi bank menentukan suku bunga deposito/kredit secara mandiri dan menghapus pagu kredit agar penyaluran kredit lebih fleksibel."
+            },
+            {
+                id: 44,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Paket Kebijakan Oktober 1988 (Pakto '88) diakui sebagai kebijakan paling liberal dalam sejarah perbankan Indonesia. Dampak langsung Pakto '88 terhadap struktur perbankan adalah...",
+                options: ["Pendirian bank baru sangat mudah sehingga tumbuh ratusan bank swasta baru yang minim modal", "Penutupan paksa seluruh bank milik asing yang beroperasi di kota besar", "Kenaikan Giro Wajib Minimum (GWM) dari 2 persen menjadi 15 persen", "Penyatuan seluruh bank umum swasta ke dalam satu wadah BUMN perbankan"],
+                answer: 0,
+                explanation: "Pakto '88 memberikan kemudahan perizinan pendirian bank baru dengan modal minimal sangat rendah, memicu ledakan ratusan bank swasta baru yang rapuh."
+            },
+            {
+                id: 45,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Salah satu isi ketentuan Pakto '88 yang memicu over-likuiditas perbankan dan ekspansi kredit berlebih adalah penurunan Giro Wajib Minimum (GWM) dari...",
+                options: ["15 persen menjadi 2 persen dari Dana Pihak Ketiga (DPK)", "2 persen menjadi 15 persen dari modal inti bank", "50 persen menjadi 20 persen untuk seluruh bank devisa swasta", "10 persen menjadi 5 persen khusus untuk unit usaha simpan pinjam"],
+                answer: 0,
+                explanation: "GWM yang turun ekstrem dari 15% ke 2% melepaskan likuiditas yang sangat melimpah ke pasar keuangan, mendorong bank melakukan ekspansi kredit agresif."
+            },
+            {
+                id: 46,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Ketentuan Batas Maksimum Pemberian Kredit (BMPK) atau Legal Lending Limit diatur dalam Pakto '88 untuk meminimalisir risiko kredit macet dengan membatasi pinjaman ke peminjam tunggal maksimal...",
+                options: ["20 persen dari total modal bank", "50 persen dari total modal bank", "75 persen dari dana pihak ketiga", "100 persen khusus untuk nasabah korporat asing"],
+                answer: 0,
+                explanation: "BMPK membatasi penyaluran kredit kepada satu nasabah tunggal maksimal 20% dari modal bank, dan 50% untuk nasabah grup, guna mengantisipasi konsentrasi risiko."
+            },
+            {
+                id: 47,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Mengapa sistem perbankan nasional hasil liberalisasi Pakto '88 terbukti sangat rapuh menghadapi guncangan krisis eksternal pada tahun 1997?",
+                options: ["Karena bank swasta didirikan konglomerat hanya untuk membiayai usaha kelompok mereka sendiri (kredit terafiliasi)", "Karena suku bunga kredit ditahan pemerintah di level nol persen", "Karena tidak ada bank asing yang diizinkan masuk dan beroperasi", "Karena bank sentral melarang transaksi penukaran valuta asing"],
+                answer: 0,
+                explanation: "Banyak konglomerat mendirikan bank sekadar sebagai 'sapi perah' untuk menghimpun dana masyarakat lalu menyalurkannya kembali ke grup bisnis mereka sendiri."
+            },
+            {
+                id: 48,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Kategori kesehatan perbankan pasca krisis oleh BPPN tahun 1998 menetapkan klasifikasi bank kategori 'C' bagi bank swasta nasional yang memiliki CAR...",
+                options: ["Di atas 4 persen", "Antara 4 persen sampai 25 persen", "Di bawah minus 25 persen", "Setara dengan rata-rata inflasi nasional"],
+                answer: 2,
+                explanation: "Berdasarkan pedoman penyehatan bank, Kategori C ditujukan bagi bank dengan CAR < -25% (Rasio Kecukupan Modal sangat buruk), yang wajib ditutup atau dibekukan."
+            },
+            {
+                id: 49,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Dua metode restrukturisasi perbankan yang umum diterapkan untuk mengatasi krisis sistemik lembaga intermediasi keuangan adalah...",
+                options: ["Tahap pemulihan kepercayaan (penjaminan dana) dan tahap reformasi regulasi (restrukturisasi/blue print)", "Tahap penutupan seluruh bank swasta nasional dan tahap pelarangan simpanan valas", "Tahap pemberian subsidi bunga 100% dan tahap pelarangan penarikan tunai", "Tahap pembekuan kliring nasional dan tahap sanering mata uang secara berulang"],
+                answer: 0,
+                explanation: "Tahap 1 bertujuan meredam kepanikan nasabah (blanket guarantee); Tahap 2 membangun kembali blue print perbankan sehat melalui restrukturisasi kelembagaan."
+            },
+            {
+                id: 50,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Kerangka dasar sistem perbankan nasional yang bersifat menyeluruh untuk memberikan arah, bentuk, dan tatanan industri perbankan dalam rentang waktu 5-10 tahun ke depan disebut...",
+                options: ["Arsitektur Perbankan Indonesia (API)", "Sistem Informasi Manajemen Otoritas Jasa Keuangan", "Manual Bank Indonesia (MOBI)", "Peta Kompetensi Kredit Usaha Rakyat"],
+                answer: 0,
+                explanation: "Arsitektur Perbankan Indonesia (API) diluncurkan BI tahun 2004 untuk memperkuat pilar-pilar perbankan nasional pasca pelepasan bimbingan dari program penyehatan IMF."
+            },
+            {
+                id: 51,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Dalam klasifikasi bank hasil rancangan API tahun 2013, sebuah bank nasional dikategorikan sebagai 'Bank Internasional' apabila memiliki modal minimal sebesar...",
+                options: ["Rp100 miliar sampai Rp10 triliun", "Rp10 triliun sampai Rp50 triliun", "Rp50 triliun ke atas", "Rp100 triliun khusus untuk kepemilikan asing"],
+                answer: 2,
+                explanation: "Dalam rancangan API, Bank Internasional wajib memegang modal minimal Rp50 triliun ke atas untuk menjamin daya tahan skala operasional global."
+            },
+            {
+                id: 52,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Sejauh ini alokasi penyaluran kredit perbankan nasional dinilai bias dan tidak adil bagi ekonomi rakyat karena sebagian besar porsi kredit mengalir ke...",
+                options: ["Sektor pertanian mikro pedesaan", "Sektor industri besar modern dan perdagangan korporasi", "Unit usaha simpan pinjam koperasi daerah tertinggal", "Lembaga keuangan mikro informal binaan pemda"],
+                answer: 1,
+                explanation: "Intermediasi perbankan didominasi penyaluran ke sektor modern padat modal (industri besar, jasa mewah), sedangkan sektor pertanian rakyat menerima porsi sangat minim."
+            },
+            {
+                id: 53,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Faktor kendala yang menyebabkan sektor UMKM dan ekonomi rakyat dinilai 'non-bankable' oleh industri perbankan umum nasional adalah...",
+                options: ["Bunga kredit UMKM yang dipatok pemerintah di level 100 persen", "Ketiadaan agunan fisik (collateral) yang memenuhi kriteria formal bank", "Pelaku UMKM dilarang mendirikan organisasi koperasi simpan pinjam", "Seluruh modal usaha mikro bersumber dari bantuan hibah luar negeri"],
+                answer: 1,
+                explanation: "Kendala utama UMKM mengakses bank adalah ketatnya syarat administratif formal dan ketiadaan agunan/jaminan berharga (collateral) yang diakui bank."
+            },
+            {
+                id: 54,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Latar belakang dibentuknya lembaga independen Otoritas Jasa Keuangan (OJK) melalui undang-undang khusus adalah...",
+                options: ["Pengaturan dan pengawasan perbankan oleh BI dianggap belum berjalan secara efektif dalam mencegah kejahatan perbankan", "Melarang perputaran modal asing di sektor asuransi mikro nasional", "Menyatukan fungsi perencanaan anggaran APBN penuh di bawah kementerian dalam negeri", "Mengambil alih seluruh kepemilikan saham bank swasta nasional menjadi milik negara"],
+                answer: 0,
+                explanation: "OJK dibentuk karena peran pengawasan BI dinilai belum optimal membawa penjahat kerah putih industri keuangan ke jalur hukum, serta perlunya pengawasan terintegrasi jasa keuangan."
+            },
+            {
+                id: 55,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Dalam penetapan asumsi ekonomi makro dalam APBN, terdapat perbedaan model penghitungan laju inflasi. Inflasi yang dipantau ketat oleh BI dalam mengendalikan instrumen moneter adalah...",
+                options: ["Inflasi Umum (Headline Inflation)", "Inflasi Inti (Core Inflation)", "Inflasi Sektoral Industri Baja", "Inflasi Impor Komoditi Pangan Mewah"],
+                answer: 1,
+                explanation: "Bank Indonesia mengacu pada inflasi inti (core inflation) yang mengeluarkan komponen volatile foods dan administered prices dalam melakukan kebijakan moneter (suku bunga SBI)."
+            },
+            {
+                id: 56,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Mengapa frekuensi perubahan asumsi makro APBN yang terlalu tinggi dinilai berdampak buruk bagi kesehatan fiskal negara?",
+                options: ["Karena mengganggu fleksibilitas anggaran dan memicu ketidakpastian realisasi belanja pembangunan", "Karena menutup celah korupsi anggaran di seluruh kementerian", "Karena otomatis menurunkan nilai utang luar negeri pemerintah sebesar 90%", "Karena mengharuskan pemerintah daerah menutup seluruh puskesmas"],
+                answer: 0,
+                explanation: "Tingginya frekuensi revisi asumsi mengganggu operasionalisasi APBN, menciptakan inefisiensi belanja, dan menurunkan kredibilitas perencanaan fiskal pemerintah."
+            },
+            {
+                id: 57,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Bantuan subsidi bunga atau permodalan mikro koperasi dinilai sebagai instrumen redistribusi keadilan sosial yang tepat karena ditujukan untuk...",
+                options: ["Memberikan kesempatan yang sama bagi pelaku ekonomi lemah untuk berkiprah dalam aktivitas perekonomian nasional", "Menjamin keuntungan bersih korporasi konglomerat swasta tetap stabil", "Membiayai perjalanan dinas pejabat perbankan ke luar negeri", "Membiayai pembangunan jalan tol berbayar khusus di kota besar"],
+                answer: 0,
+                explanation: "Subsidi bagi ekonomi lemah mewakili konsep equity (keadilan), memberikan perlakuan khusus yang mengompensasi ketidakberdayaan awal kelompok marginal."
+            },
+            {
+                id: 58,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Penggabungan beberapa bank yang dinilai bermasalah pasca krisis untuk menciptakan entitas baru yang lebih kuat modal dan jaringannya disebut...",
+                options: ["Likuidasi Bank", "Merger (Penggabungan Bank)", "Korporatisasi Unit Usaha", "Privatisasi Kepemilikan"],
+                answer: 1,
+                explanation: "Merger menyatukan bank-bank rapuh (seperti Bank Bumi Daya, Bank Dagang Negara, Bank Ekspor Impor, Bapindo menjadi Bank Mandiri) demi efisiensi operasional."
+            },
+            {
+                id: 59,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Apa tujuan utama penempatan dana BUMN maksimal 50% di bank pemerintah dan maksimal 20% di bank swasta yang diatur dalam Pakto '88?",
+                options: ["Membatasi dominasi bank pemerintah serta merangsang persaingan sehat industri perbankan nasional", "Membekukan modal BUMN agar tidak disalahgunakan untuk kegiatan investasi riil", "Memaksa seluruh BUMN menyerahkan asetnya kepada kepemilikan asing", "Mengurangi porsi inflasi umum secara drastis melalui pemotongan nilai uang"],
+                answer: 0,
+                explanation: "Regulasi ini dimaksudkan agar likuiditas dana negara tersebar ke bank swasta, memicu persaingan kompetitif dan mengurangi ketergantungan bank swasta pada BI."
+            },
+            {
+                id: 60,
+                module: "Modul 3: Keuangan & Perbankan",
+                question: "Lembaga penjamin simpanan nasabah perbankan yang dibentuk pasca krisis guna menjaga stabilitas sistem perbankan nasional di Indonesia saat ini adalah...",
+                options: ["Badan Penyehatan Perbankan Nasional (BPPN)", "Lembaga Penjamin Simpanan (LPS)", "Bank Pembangunan Daerah (BPD)", "Koperasi Simpan Pinjam Nasional"],
+                answer: 1,
+                explanation: "LPS bertugas menjamin simpanan nasabah di bank demi memelihara kepercayaan masyarakat dan mencegah kepanikan bank run (rush money) terulang kembali."
+            },
+            // MODUL 4: INVESTASI & PERDAGANGAN INTERNASIONAL (61-70)
+            {
+                id: 61,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Guna menunjang pertumbuhan ekonomi berkelanjutan dalam jangka panjang, pengeluaran modal (investasi) memiliki peran utama melalui efek akumulasi pembentukan...",
+                options: ["Dana jaminan sosial luar negeri", "Kapital (mesin, bangunan, peralatan produksi, teknologi)", "Jumlah impor barang mewah komplementer", "Pagu kredit konsumtif bank swasta asing"],
+                answer: 1,
+                explanation: "Secara jangka panjang, investasi meningkatkan kapasitas produksi nasional melalui akumulasi modal fisik (capital stock) dan kemajuan teknologi (technological progress)."
+            },
+            {
+                id: 62,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Arus modal asing yang masuk ke dalam negeri dalam bentuk pembelian saham portofolio dan surat utang negara di pasar keuangan jangka pendek disebut...",
+                options: ["Foreign Direct Investment (FDI)", "Investasi Portofolio (Indirect Investment)", "Kredit Investasi Mikro Koperasi", "Penanaman Modal Dalam Negeri (PMDN) Fisik"],
+                answer: 1,
+                explanation: "Investasi portofolio bersifat finansial, sangat likuid, dan jangka pendek (hot money), yang rentan keluar secara instan jika terjadi krisis kepercayaan."
+            },
+            {
+                id: 63,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Pemerintah memprioritaskan penanaman modal dalam bentuk Penanaman Modal Asing langsung (FDI). Keunggulan utama FDI dibanding investasi portofolio adalah...",
+                options: ["Diikuti dengan pembangunan pabrik fisik, transfer teknologi, dan penyerapan tenaga kerja lokal langsung", "Sangat mudah ditarik kembali ke luar negeri dalam hitungan menit", "Hanya menyerap modal berdenominasi rupiah mikro tani", "Bebas dari kewajiban mematuhi undang-undang ketenagakerjaan"],
+                answer: 0,
+                explanation: "FDI (Foreign Direct Investment) menanamkan modal fisik berjangka panjang di dalam negeri, mengikat investor pada lokasi geografis, dan menyerap tenaga kerja lokal."
+            },
+            {
+                id: 64,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Manakah regulasi era reformasi yang merevisi undang-undang investasi kolonial dan menyatukan perlakuan hukum investasi asing maupun domestik di Indonesia?",
+                options: ["UU No. 1 Tahun 1967 tentang PMA", "UU No. 25 Tahun 2007 tentang Penanaman Modal", "PP No. 20 Tahun 1994 tentang Deregulasi Saham", "Inpres No. 10 Tahun 1998 tentang Penyehatan Keuangan"],
+                answer: 1,
+                explanation: "UU No. 25 Tahun 2007 menyatukan perlakuan (equal treatment) bagi penanam modal dalam negeri (PMDN) dan asing (PMA) dengan batasan bidang usaha tertentu."
+            },
+            {
+                id: 65,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Salah satu indikator kinerja perdagangan luar negeri adalah neraca perdagangan (balance of trade). Sektor yang menyumbang surplus perdagangan non-migas terbesar di era reformasi adalah...",
+                options: ["Sektor industri manufaktur berat otomotif", "Sektor komoditas berbasis sumber daya alam (seperti kelapa sawit/CPO dan batubara)", "Sektor industri teknologi mikro semikonduktor", "Sektor pariwisata medis internasional swasta"],
+                answer: 1,
+                explanation: "Surplus perdagangan Indonesia ditopang oleh ekspor komoditas primer berbasis SDA seperti batubara dan minyak sawit mentah (CPO) yang harganya fluktuatif."
+            },
+            {
+                id: 66,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Hambatan perdagangan luar negeri berupa pembatasan jumlah fisik barang impor yang boleh masuk ke dalam negeri dalam jangka waktu tertentu disebut...",
+                options: ["Tarif impor ad-valorem", "Kuota Impor (Hambatan Non-Tarif)", "Subsidi Ekspor Sepihak", "Devaluasi Kurs Tertentu"],
+                answer: 1,
+                explanation: "Kuota impor membatasi volume fisik barang impor secara langsung untuk melindungi industri domestik dari serbuan produk sejenis."
+            },
+            {
+                id: 67,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Penerapan proteksi perdagangan berupa subsidi bagi eksportir domestik sering mendapat protes di ranah internasional karena dinilai melanggar aturan organisasi dagang dunia yaitu...",
+                options: ["World Bank", "WTO (World Trade Organization)", "IMF (International Monetary Fund)", "AFTA (ASEAN Free Trade Area)"],
+                answer: 1,
+                explanation: "Subsidi ekspor dinilai merusak keadilan persaingan pasar bebas global oleh WTO, sehingga dapat mengundang tindakan retaliasi (balasan) dari negara mitra dagang."
+            },
+            {
+                id: 68,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Strategi IPE (Industri Promosi Ekspor) menuntut penguatan nilai saing produk domestik. Upaya yang tepat dilakukan pemerintah untuk mendorong ekspor komoditi kerakyatan adalah...",
+                options: ["Menaikkan tarif pajak ekspor produk kerajinan rakyat setinggi-tingginya", "Menyediakan kemudahan pembiayaan, fasilitasi standardisasi mutu internasional, dan pameran global", "Melarang koperasi tani menjual hasil produksinya ke pasar luar negeri", "Menurunkan upah riil buruh tani di bawah garis kemiskinan ekstrim"],
+                answer: 1,
+                explanation: "Insentif ekspor, standardisasi mutu, serta pembukaan jaringan pasar global sangat krusial agar produk UMKM rakyat memiliki keunggulan kompetitif di kancah global."
+            },
+            {
+                id: 69,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Defisit transaksi berjalan (current account deficit) terjadi apabila nilai impor barang dan jasa serta transfer keluar negeri lebih besar dibanding...",
+                options: ["Cadangan devisa emas di bank sentral Amerika Serikat", "Nilai ekspor barang dan jasa serta transfer masuk dari luar negeri", "Porsi simpanan dana pihak ketiga khusus koperasi mikro", "Jumlah total utang luar negeri swasta jangka panjang"],
+                answer: 1,
+                explanation: "Transaksi berjalan mencatat ekspor-impor barang, jasa, pendapatan primer, dan sekunder. Jika impor melebihi ekspor, maka transaksi berjalan mengalami defisit."
+            },
+            {
+                id: 70,
+                module: "Modul 4: Investasi & Perdagangan",
+                question: "Risiko utama yang harus diantisipasi Indonesia dalam era integrasi ekonomi regional seperti Masyarakat Ekonomi ASEAN (MEA) adalah...",
+                options: ["Hilangnya hak otonomi politik kedaulatan wilayah NKRI", "Serbuan produk manufaktur dan tenaga kerja asing profesional yang berpotensi mematikan industri lokal jika tidak bersiap", "Penutupan seluruh akses transaksi keuangan antarnegara anggota", "Kewajiban penyerahan 90% aset pertambangan BUMN ke sekretariat ASEAN"],
+                answer: 1,
+                explanation: "MEA membuka keran bebas arus barang, jasa, modal, investasi, dan tenaga kerja profesional terampil, menuntut daya saing tinggi agar pasar lokal tidak terhegemoni asing."
+            },
+            // MODUL 5: KOPERASI & PRIVATISASI (71-85)
+            {
+                id: 71,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Koperasi di Indonesia pertama kali dirintis di Purwokerto pada tahun 1895 oleh Raden Aria Wiriaatmadja. Latar belakang pendirian koperasi tersebut adalah...",
+                options: ["Membantu para pegawai pamong praja terlepas dari jeratan lintah darat (rentenir)", "Membiayai perang perlawanan melawan monopoli dagang VOC", "Mendirikan jaringan pabrik gula terbesar khusus swasta domestik", "Menampung dana bagi hasil ekspor rempah-rempah ke Eropa"],
+                answer: 0,
+                explanation: "Koperasi kredit didirikan Aria Wiriaatmadja untuk menolong para pegawai negeri (pamong praja) yang tercekik utang rentenir berbiaya bunga tinggi."
+            },
+            {
+                id: 72,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Koperasi Unit Desa (KUD) ditetapkan sebagai satu-satunya organisasi petani di tingkat kecamatan era Orde Baru melalui Instruksi Presiden (Inpres). Dampak negatif penugasan tunggal KUD ini adalah...",
+                options: ["KUD disibukkan dengan penugasan politis non-ekonomis dari pemerintah sehingga melalaikan pelayanan ekonomi anggotanya", "Meningkatnya aset koperasi secara mandiri melampaui kepemilikan aset swasta nasional", "KUD bebas dari campur tangan birokrasi pemerintah pusat", "Koperasi berhasil menguasai 95 persen industri teknologi tinggi"],
+                answer: 0,
+                explanation: "Monopoli peran KUD menjadikannya alat birokrasi pusat untuk kontrol pedesaan dan penyedia dukungan politik rezim penguasa, mengorbankan asas profesionalisme ekonomi."
+            },
+            {
+                id: 73,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Hingga tahun 1993, aset ekonomi nasional didominasi oleh BUMN (53,8%) dan sektor swasta (45,4%), sedangkan Koperasi hanya menguasai aset sebesar...",
+                options: ["0,8 persen", "10,5 persen", "25,0 persen", "50,0 persen"],
+                answer: 0,
+                explanation: "Berdasarkan data Baswir (1996), Koperasi menempati urutan terakhir dalam penguasaan aset nasional dengan porsi sangat marjinal, yaitu hanya 0,8%."
+            },
+            {
+                id: 74,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Hambatan struktural koperasi di Indonesia era Orde Baru adalah maraknya konglomerasi ekonomi. Hal ini berdampak buruk bagi koperasi karena...",
+                options: ["Pemerintah lebih memprioritaskan asosiasi pengusaha besar (konglomerat) daripada pemberdayaan koperasi", "Pengusaha konglomerat menyerahkan seluruh sahamnya kepada koperasi secara sukarela", "Koperasi dipaksa melakukan merger dengan perbankan swasta asing", "Hilangnya hak anggota koperasi untuk mencalonkan diri dalam pemilu"],
+                answer: 0,
+                explanation: "Hubungan patron-klien antara penguasa dan konglomerat melahirkan konglomerasi bisnis yang menyerap proteksi dan kemudahan fasilitas, meminggirkan koperasi rakyat."
+            },
+            {
+                id: 75,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Penerapan pola-pola manajemen unit bisnis swasta yang berorientasi laba pada BUMN dengan menghapuskan birokrasi kaku kepemerintahan disebut...",
+                options: ["Privatisasi", "Korporatisasi", "Divestasi Aset Swasta", "Sanering Anggaran"],
+                answer: 1,
+                explanation: "Korporatisasi mengubah status BUMN (misal dari Perjan/Perum menjadi Persero) agar manajemennya bekerja profesional dan efisien seperti entitas swasta."
+            },
+            {
+                id: 76,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Pelepasan sebagian atau seluruh saham kepemilikan pemerintah di BUMN kepada pihak swasta atau publik baik secara langsung maupun lewat pasar modal disebut...",
+                options: ["Nasionalisasi Swasta", "Privatisasi", "Etatisme Monopoli", "Subsidi Silang Sektoral"],
+                answer: 1,
+                explanation: "Privatisasi (swastanisasi) melepas kepemilikan negara kepada swasta/publik untuk meraup segar modal, memotong beban APBN, dan mendisiplinkan kinerja korporasi."
+            },
+            {
+                id: 77,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Privatisasi BUMN marak dilaksanakan pasca krisis 1997/1998 karena menjadi bagian dari kesepakatan surat komitmen (Letter of Intent) Indonesia dengan lembaga donor...",
+                options: ["World Bank", "IMF (International Monetary Fund)", "World Trade Organization", "Asian Development Bank"],
+                answer: 1,
+                explanation: "IMF memberikan pinjaman pemulihan dengan syarat (conditionalities) ketat, salah satunya program reformasi struktural melalui privatisasi dan penjualan aset BUMN."
+            },
+            {
+                id: 78,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Manfaat utama privatisasi BUMN yang sering dikemukakan pemerintah untuk menunjang fleksibilitas keuangan negara jangka pendek adalah...",
+                options: ["Menghasilkan tambahan penerimaan kas negara guna menutup defisit anggaran (APBN)", "Menghapus seluruh kewajiban pembayaran utang luar negeri secara total", "Mengambil alih paksa bank-bank swasta asing untuk dinasionalisasi", "Menurunkan harga pangan pokok secara drastis melalui intervensi langsung"],
+                answer: 0,
+                explanation: "Privatisasi menghasilkan dana segar non-utang yang masuk langsung ke kas negara, sangat membantu menyehatkan defisit APBN pada periode krisis."
+            },
+            {
+                id: 79,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Risiko privatisasi BUMN yang harus diwaspadai apabila mencakup perusahaan vital penyedia kebutuhan dasar hajat hidup orang banyak adalah...",
+                options: ["Kehilangan kontrol penentuan harga terjangkau bagi masyarakat kecil karena berorientasi penuh pada profit swasta", "Seluruh karyawan BUMN otomatis berubah status menjadi pegawai negeri sipil", "Meningkatnya kepemilikan aset koperasi secara masif melampaui pasar global", "Pemerintah tidak lagi berhak memungut pajak penghasilan dari korporasi tersebut"],
+                answer: 0,
+                explanation: "Sesuai Pasal 33 UUD 1945, cabang penting yang menguasai hajat hidup orang banyak harus dikuasai negara agar harga tetap terkendali dan terjangkau masyarakat luas."
+            },
+            {
+                id: 80,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Lembaga keuangan mikro berbasis koperasi yang mengumpulkan modal simpanan anggotanya untuk disalurkan kembali dalam bentuk kredit segmen mikro usaha rakyat disebut...",
+                options: ["Koperasi Simpan Pinjam (KSP) dan Koperasi Pasar (Koppas)", "Bank Pembangunan Daerah (BPD) dan Bank Umum", "Lembaga Penjamin Simpanan (LPS) Nasional", "Unit Kliring Bank Indonesia Cabang Daerah"],
+                answer: 0,
+                explanation: "KSP dan Koppas adalah bentuk koperasi jasa keuangan yang menyediakan akses pembiayaan skala mikro bagi masyarakat bawah yang tidak terjangkau bank umum."
+            },
+            {
+                id: 81,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Volume usaha koperasi di Indonesia secara umum dinilai masih relatif kecil. Faktor internal pengurus koperasi yang menghambat daya saing bisnisnya adalah...",
+                options: ["Keterbatasan kompetensi manajerial, profesionalisme pengelola, dan keterbatasan permodalan mandiri", "Adanya larangan tertulis bagi koperasi untuk merekrut anggota perempuan", "Bunga kredit simpanan yang dipatok bank sentral maksimal 1 persen", "Kewajiban penyerahan 90 persen keuntungan bersih kepada kementerian keuangan"],
+                answer: 0,
+                explanation: "Masalah internal koperasi umumnya berkutat pada tata kelola yang kurang profesional, keterbatasan keahlian bisnis pengurus, serta modal mandiri yang relatif minim."
+            },
+            {
+                id: 82,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Untuk mengatasi masalah permodalan, koperasi dapat menghimpun modal yang berasal dari simpanan wajib, simpanan pokok, dan dana hibah. Kategori modal ini tergolong sebagai...",
+                options: ["Modal Sendiri", "Modal Pinjaman Swasta", "Kredit Likuiditas Bank Sentral", "Investasi Portofolio Asing Jangka Pendek"],
+                answer: 0,
+                explanation: "Simpanan pokok, simpanan wajib, dana cadangan, dan hibah diklasifikasikan sebagai Modal Sendiri koperasi karena berasal dari internal anggota dan pengikat kedaulatan koperasi."
+            },
+            {
+                id: 83,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Dampak positif privatisasi bagi tata kelola (governance) internal BUMN itu sendiri adalah...",
+                options: ["Meningkatkan disiplin pasar, transparansi informasi, dan profesionalisme kinerja korporat", "Memudahkan penunjukan anggota keluarga direksi secara nepotisme", "Membebaskan BUMN dari kewajiban mempublikasikan laporan keuangan tahunan", "Menjamin BUMN mendapat subsidi dana talangan APBN secara rutin tanpa audit"],
+                answer: 0,
+                explanation: "Tuntutan transparansi pasar modal (go public) memaksa korporat menerapkan asas Good Corporate Governance (GCG), meningkatkan akuntabilitas kinerja."
+            },
+            {
+                id: 84,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Strategi privatisasi melalui metode penawaran saham perdana BUMN kepada publik di bursa efek nasional disebut...",
+                options: ["Initial Public Offering (IPO) / Go Public", "Direct Placement (Penjualan Langsung sepihak)", "Asset Liquidation (Likuidasi Aset Fisik)", "Corporate Takeover Unilateral"],
+                answer: 0,
+                explanation: "IPO melepas saham BUMN ke bursa efek sehingga masyarakat luas dan investor dapat membelinya secara transparan, mendorong transparansi kepemilikan publik."
+            },
+            {
+                id: 85,
+                module: "Modul 5: Koperasi & Privatisasi",
+                question: "Tindakan debirokratisasi koperasi yang diharapkan dari pemerintah ditujukan agar koperasi dapat...",
+                options: ["Bergerak lebih lincah, mandiri, dan bebas dari beban regulasi administratif yang mengekang kreativitas bisnisnya", "Menjadi instansi bawahan kementerian dalam negeri secara penuh", "Menolak segala bentuk pengawasan laporan keuangan dari instansi pajak", "Membeli seluruh saham industri perbankan asing secara wajib"],
+                answer: 0,
+                explanation: "Debirokratisasi memberikan kelonggaran regulasi agar koperasi leluasa melakukan manuver bisnis secara profesional tanpa dibebani misi birokratis penguasa."
+            },
+            // MODUL 8: OTONOMI DAERAH & PEMBANGUNAN MANUSIA (86-100)
+            {
+                id: 86,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Praktik sentralisasi ekonomi era Orde Baru menyebabkan ketimpangan fiskal vertikal yang tinggi. Kajian Shah dan Qureshi (1990) menunjukkan koefisien ketimpangan fiskal Indonesia sebesar...",
+                options: ["0,05 (Sangat Mandiri)", "0,19 (Ketimpangan Fiskal Sangat Tinggi)", "0,50 (Keseimbangan Sempurna)", "0,95 (Ketergantungan Total Pusat)"],
+                answer: 1,
+                explanation: "Koefisien 0,19 merupakan yang tertinggi dibanding sembilan negara lain yang dikaji, mencerminkan kemandirian keuangan daerah di Indonesia yang sangat rendah pra-reformasi."
+            },
+            {
+                id: 87,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Tingginya intervensi pemerintah pusat era Orba dalam menentukan arah penggunaan bantuan dana pembangunan daerah mengakibatkan dampak buruk berupa...",
+                options: ["Proyek-proyek yang dibiayai pusat seringkali tidak cocok dengan kebutuhan riil masyarakat daerah", "Daerah memiliki surplus Pendapatan Asli Daerah yang melimpah", "Seluruh kabupaten di luar Jawa tumbuh menjadi pusat industri manufaktur", "Terhapusnya utang luar negeri pemerintah pusat secara otomatis"],
+                answer: 0,
+                explanation: "Perencanaan dari atas (top-down) membuat proyek daerah berskala nasional tidak tepat sasaran karena tidak disesuaikan dengan kebutuhan dan karakteristik lokal."
+            },
+            {
+                id: 88,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Era baru hubungan keuangan pusat dan daerah ditandai dengan diterbitkannya produk regulasi bersejarah pasca reformasi yaitu...",
+                options: ["UU No. 22 Tahun 1999 dan UU No. 25 Tahun 1999", "UU No. 1 Tahun 1967 dan UU No. 5 Tahun 1960", "PP No. 20 Tahun 1994 dan PP No. 20 Tahun 1999", "UU No. 25 Tahun 2007 dan UU No. 21 Tahun 2011"],
+                answer: 0,
+                explanation: "UU No. 22/1999 (otonomi pemerintahan) dan UU No. 25/1999 (perimbangan keuangan) meletakkan landasan desentralisasi dan penyerahan wewenang luas kepada daerah."
+            },
+            {
+                id: 89,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Dana transfer dari pemerintah pusat ke pemerintah daerah yang dialokasikan dengan tujuan mengurangi ketimpangan fiskal antardaerah dan membiayai kebutuhan belanja dasar disebut...",
+                options: ["Pendapatan Asli Daerah (PAD)", "Dana Alokasi Umum (DAU)", "Dana Alokasi Khusus (DAK)", "Dana Pinjaman Investasi Asing"],
+                answer: 1,
+                explanation: "DAU adalah dana transfer bersifat 'block grant' (bebas digunakan daerah) yang dialokasikan dengan formula pemerataan fiskal antardaerah."
+            },
+            {
+                id: 90,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Dana perimbangan pusat-daerah yang dialokasikan khusus untuk membantu mendanai kegiatan-kegiatan fisik daerah yang sejalan dengan prioritas nasional disebut...",
+                options: ["Dana Alokasi Khusus (DAK)", "Dana Alokasi Umum (DAU)", "Pendapatan Asli Daerah (PAD) Non-Pajak", "Dana Bagi Hasil (DBH) Pajak"],
+                answer: 0,
+                explanation: "DAK bersifat 'specific grant' (penggunaannya ditentukan pusat) untuk membiayai program pembangunan fisik pelayanan publik prioritas nasional di daerah."
+            },
+            {
+                id: 91,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Penerimaan daerah yang bersumber dari hasil pajak daerah, retribusi daerah, pengelolaan kekayaan daerah yang dipisahkan, dan lain-lain penerimaan daerah yang sah dinamakan...",
+                options: ["Dana Perimbangan Pusat", "Pendapatan Asli Daerah (PAD)", "Dana Insentif Fiskal Khusus", "Dana Hibah Organisasi Multinasional"],
+                answer: 1,
+                explanation: "PAD mencerminkan tingkat kemandirian fiskal daerah; semakin tinggi PAD terhadap total APBD, semakin mandiri daerah tersebut dari ketergantungan transfer pusat."
+            },
+            {
+                id: 92,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Indikator utama berskala internasional yang digunakan untuk mengukur keberhasilan pembangunan kualitas hidup manusia di suatu daerah atau negara disebut...",
+                options: ["Indeks Pembangunan Manusia (IPM)", "Produk Domestik Regional Bruto (PDRB) Sektoral", "Koefisien Gini Kemiskinan Daerah", "Rasio Kecukupan Modal Perbankan (CAR) Regional"],
+                answer: 0,
+                explanation: "IPM (Human Development Index) merupakan indikator komposit untuk mengukur pencapaian pembangunan manusia berdasarkan dimensi kesehatan, pengetahuan, dan standar hidup layak."
+            },
+            {
+                id: 93,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Tiga dimensi utama dasar pembentuk penghitungan angka Indeks Pembangunan Manusia (IPM) mencakup komponen...",
+                options: ["Umur panjang & sehat, Pengetahuan (angka harapan sekolah/melek huruf), dan Standar hidup layak (pengeluaran riil per kapita)", "Jumlah pabrik industri, panjang jalan tol, dan porsi kepemilikan modal asing", "Jumlah kantor cabang bank, porsi simpanan koperasi, dan tingkat keuntungan BUMN", "Nilai ekspor non-migas, jumlah utang luar negeri, dan tingkat devaluasi mata uang"],
+                answer: 0,
+                explanation: "Tiga dimensi dasar IPM adalah: 1) Kesehatan (Harapan Hidup); 2) Pengetahuan (Rata-rata & Harapan Lama Sekolah); 3) Standar Hidup (Pengeluaran Per Kapita disesuaikan PPP)."
+            },
+            {
+                id: 94,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Bagaimanakah keterkaitan struktural antara peningkatan kualitas pembangunan manusia (IPM) dengan akselerasi proses industrialisasi daerah?",
+                options: ["IPM tinggi menyediakan pasokan SDM terampil berkeahlian yang krusial untuk mendukung efisiensi dan inovasi teknologi industri", "Meningkatnya IPM otomatis menutup kebutuhan investasi modal asing", "IPM yang tinggi hanya dapat diwujudkan jika koperasi menguasai seluruh hak monopoli dagang", "IPM menghapus kewajiban pembayaran pajak perusahaan manufaktur secara total"],
+                answer: 0,
+                explanation: "Industrialisasi modern menuntut SDM yang sehat dan berpendidikan tinggi (aspek IPM) agar proses alih teknologi dan inovasi efisiensi produksi berjalan optimal."
+            },
+            {
+                id: 95,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Menurut data pembangunan manusia, posisi peringkat IPM Indonesia di kancah internasional (tahun 2013 berada di urutan ke-121) dinilai tertinggal jauh di bawah tetangga ASEAN yaitu...",
+                options: ["Singapura dan Malaysia", "Filipina dan Kamboja", "Vietnam dan Myanmar", "Timor Leste dan Laos"],
+                answer: 0,
+                explanation: "Berdasarkan modul, IPM Indonesia (peringkat 121) berada jauh di bawah Singapura (peringkat 18) dan Malaysia (peringkat 64) pada periode tersebut."
+            },
+            {
+                id: 96,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Penyerahan kewenangan administrasi pemerintahan ke daerah tanpa disertai penyerahan perimbangan keuangan yang memadai berisiko memicu masalah berupa...",
+                options: ["Meningkatnya porsi korupsi administratif di tingkat pusat", "Ketidakmampuan daerah membiayai standar pelayanan publik minimal daerahnya sendiri", "Penurunan kumulatif inflasi inti nasional secara instan", "Nasionalisasi seluruh bank swasta di tingkat kabupaten/kota"],
+                answer: 1,
+                explanation: "Desentralisasi wewenang wajib diikuti desentralisasi fiskal (money follows function); jika tidak, daerah miskin akan gagal membiayai pelayanan dasar masyarakatnya."
+            },
+            {
+                id: 97,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Salah satu pilar reformasi otonomi daerah adalah desentralisasi fiskal. Yang dimaksud dengan desentralisasi fiskal adalah...",
+                options: ["Pelimpahan wewenang pengelolaan keuangan daerah secara mandiri kepada daerah berdasarkan pembagian sumber daya yang adil", "Penarikan seluruh kewenangan penentuan APBD ke tangan kementerian dalam negeri", "Pengalihan kepemilikan seluruh aset pertambangan daerah menjadi milik investor asing", "Penetapan satu jenis mata uang lokal baru di setiap provinsi Indonesia"],
+                answer: 0,
+                explanation: "Desentralisasi fiskal memberikan hak bagi pemda untuk memungut pajak daerah (taxing power) dan mengelola pengeluaran pembangunan sesuai prioritas lokal."
+            },
+            {
+                id: 98,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Ketimpangan fiskal horizontal (horizontal fiscal imbalance) merujuk pada ketimpangan pendapatan antardaerah di Indonesia yang disebabkan oleh...",
+                options: ["Perbedaan melimpah tidaknya potensi kekayaan sumber daya alam dan kapasitas ekonomi antarsatu daerah dengan daerah lainnya", "Adanya pembagian klasifikasi perbankan internasional di kota besar saja", "Penerapan sistem kurs bebas yang berbeda di setiap pulau besar", "Kewajiban penyerahan dividen BUMN yang dipusatkan di DKI Jakarta"],
+                answer: 0,
+                explanation: "Daerah kaya tambang/migas memiliki kapasitas fiskal sangat tinggi dibanding daerah minus SDA, menuntut transfer DAU pusat untuk menyeimbangkan ketimpangan horizontal ini."
+            },
+            {
+                id: 99,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Kebijakan otonomi daerah yang dinilai berhasil mendongkrak inisiatif lokal adalah lahirnya program-program inovatif daerah. Inovasi daerah dapat terhambat apabila...",
+                options: ["Birokrasi daerah terlalu bersih dan transparan", "Sistem hukum daerah terlalu bergantung pada petunjuk operasional kaku yang sentralistik dari pusat", "Pemerintah daerah memberikan kemudahan perizinan bagi koperasi simpan pinjam", "Masyarakat aktif terlibat dalam pengawasan anggaran daerah"],
+                answer: 1,
+                explanation: "Kekakuan aturan (juklak/juknis sentralistis) membunuh kreativitas dan keberanian kepala daerah untuk melakukan terobosan kebijakan yang sesuai kebutuhan lokal."
+            },
+            {
+                id: 100,
+                module: "Modul 8: Otonomi Daerah & Pembangunan",
+                question: "Apa korelasi langsung antara pemberantasan korupsi di tingkat daerah dengan peningkatan kesejahteraan manusia (IPM) daerah tersebut?",
+                options: ["Bebasnya anggaran dari kebocoran (KKN) memastikan dana APBD tersalurkan optimal untuk layanan kesehatan dan pendidikan masyarakat", "Meningkatnya korupsi otomatis menaikkan peringkat IPM regional", "Tidak ada hubungan korelasi apa pun antara korupsi dan pembangunan manusia", "Korupsi yang diberantas akan menurunkan nilai investasi asing langsung secara total"],
+                answer: 0,
+                explanation: "Pemberantasan korupsi menekan inefisiensi anggaran (leakage), sehingga alokasi dana APBD terdistribusi penuh untuk peningkatan gizi, infrastruktur sekolah, dan puskesmas daerah."
+            }
+        ];
+
+        // Application State
+        let currentMode = 'latihan'; // 'latihan' or 'ujian'
+        let currentQuestionIndex = 0;
+        let selectedAnswers = new Array(100).fill(null);
+        let bookmarks = new Array(100).fill(false);
+        let examTimeLeft = 90 * 60; // 90 minutes in seconds
+        let timerInterval = null;
+        let activeModuleFilter = 'all';
+        let filteredQuestionsIndices = Array.from({length: 100}, (_, i) => i);
+
+        // UI Initialization
+        window.onload = function() {
+            initApp();
+        };
+
+        function initApp() {
+            renderGridNavigator();
+            showQuestion(0);
+            updateProgress();
+            
+            // Default select dropdown value
+            document.getElementById('ddlModuleFilter').value = 'all';
+        }
+
+        // Mode Switching
+        function switchMode(mode) {
+            if (currentMode === mode) return;
+
+            // Warning if switching mid-way
+            const answeredCount = selectedAnswers.filter(ans => ans !== null).length;
+            if (answeredCount > 0) {
+                showModal(
+                    "Ganti Mode Belajar",
+                    "Anda sedang mengerjakan simulasi. Mengganti mode sekarang akan menyetel ulang semua jawaban Anda. Apakah Anda yakin?",
+                    [
+                        { text: "Batal", class: "bg-slate-200 text-slate-700 hover:bg-slate-300", action: closeModal },
+                        { text: "Ya, Setel Ulang", class: "bg-blue-600 text-white hover:bg-blue-700", action: () => {
+                            resetAllData();
+                            applyModeChange(mode);
+                            closeModal();
+                        }}
+                    ]
+                );
+            } else {
+                applyModeChange(mode);
+            }
+        }
+
+        function applyModeChange(mode) {
+            currentMode = mode;
+            const btnLatihan = document.getElementById('btnModeLatihan');
+            const btnUjian = document.getElementById('btnModeUjian');
+            const timerContainer = document.getElementById('timerContainer');
+            const modeLatihanLegends = document.querySelectorAll('.mode-latihan-only');
+
+            if (mode === 'latihan') {
+                btnLatihan.className = "px-3 py-1 text-xs font-semibold rounded transition-all bg-yellow-400 text-blue-950 shadow-sm";
+                btnUjian.className = "px-3 py-1 text-xs font-semibold rounded transition-all text-slate-300 hover:text-white";
+                timerContainer.classList.add('hidden');
+                clearInterval(timerInterval);
+                
+                // Show Correct/Wrong legends
+                modeLatihanLegends.forEach(el => el.classList.remove('hidden'));
+            } else {
+                btnUjian.className = "px-3 py-1 text-xs font-semibold rounded transition-all bg-yellow-400 text-blue-950 shadow-sm";
+                btnLatihan.className = "px-3 py-1 text-xs font-semibold rounded transition-all text-slate-300 hover:text-white";
+                timerContainer.classList.remove('hidden');
+                
+                // Hide Correct/Wrong legends in exam mode
+                modeLatihanLegends.forEach(el => el.classList.add('hidden'));
+
+                startExamTimer();
+            }
+
+            renderGridNavigator();
+            showQuestion(currentQuestionIndex);
+            updateProgress();
+        }
+
+        function resetAllData() {
+            selectedAnswers.fill(null);
+            bookmarks.fill(false);
+            currentQuestionIndex = 0;
+            examTimeLeft = 90 * 60;
+        }
+
+        // Timer Logic
+        function startExamTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                examTimeLeft--;
+                if (examTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmitExam();
+                } else {
+                    updateTimerUI();
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const minutes = Math.floor(examTimeLeft / 60);
+            const seconds = examTimeLeft % 60;
+            const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            const timerElement = document.getElementById('txtTimer');
+            timerElement.textContent = formattedTime;
+
+            // Visual warning when time is low (< 10 minutes)
+            const timerContainer = document.getElementById('timerContainer');
+            if (examTimeLeft < 10 * 60) {
+                timerContainer.className = "flex items-center gap-2 bg-red-600/35 border border-red-500/80 px-3.5 py-1.5 rounded-lg text-red-100 animate-pulse";
+            } else {
+                timerContainer.className = "flex items-center gap-2 bg-red-950/40 border border-red-500/30 px-3.5 py-1.5 rounded-lg text-red-200";
+            }
+        }
+
+        function autoSubmitExam() {
+            showModal(
+                "WAKTU UAS HABIS",
+                "Waktu pengerjaan ujian Anda telah habis. Lembar jawaban Anda akan dikumpulkan secara otomatis sekarang.",
+                [
+                    { text: "Lihat Hasil", class: "bg-blue-600 text-white hover:bg-blue-700 w-full", action: () => {
+                        closeModal();
+                        gradeExam();
+                    }}
+                ]
+            );
+        }
+
+        // Render Questions
+        function showQuestion(index) {
+            currentQuestionIndex = index;
+            const qData = questionBank[index];
+
+            // Update Labels
+            document.getElementById('lblQuestionNum').textContent = index + 1;
+            document.getElementById('lblQuestionModule').textContent = qData.module;
+            document.getElementById('lblQuestionText').textContent = qData.question;
+
+            // Render Options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            const alphabet = ['A', 'B', 'C', 'D'];
+            qData.options.forEach((optText, optIdx) => {
+                const optButton = document.createElement('button');
+                optButton.onclick = () => selectOption(optIdx);
+                optButton.className = getOptionStyle(index, optIdx);
+                
+                optButton.innerHTML = `
+                    <div class="flex items-start gap-3 text-left w-full">
+                        <span class="font-bold flex items-center justify-center shrink-0 w-7 h-7 rounded-lg border text-sm option-badge transition-colors ${getOptionBadgeStyle(index, optIdx)}">
+                            ${alphabet[optIdx]}
+                        </span>
+                        <span class="text-sm font-medium pt-0.5 leading-relaxed text-slate-700 option-text">${optText}</span>
+                    </div>
+                `;
+                optionsContainer.appendChild(optButton);
+            });
+
+            // Toggle Bookmark Icon Highlight
+            const bookmarkIcon = document.getElementById('bookmarkIcon');
+            if (bookmarks[index]) {
+                bookmarkIcon.setAttribute('fill', '#f59e0b');
+                bookmarkIcon.setAttribute('stroke', '#d97706');
+            } else {
+                bookmarkIcon.setAttribute('fill', 'none');
+                bookmarkIcon.setAttribute('stroke', 'currentColor');
+            }
+
+            // Reveal explanation in 'latihan' mode if already answered
+            const expContainer = document.getElementById('explanationContainer');
+            if (currentMode === 'latihan' && selectedAnswers[index] !== null) {
+                expContainer.classList.remove('hidden');
+                document.getElementById('lblCorrectAnswerText').textContent = `Jawaban Benar: ${alphabet[qData.answer]}. ${qData.options[qData.answer]}`;
+                document.getElementById('lblExplanationText').textContent = qData.explanation;
+            } else {
+                expContainer.classList.add('hidden');
+            }
+
+            // Adjust navigation buttons states
+            document.getElementById('btnPrev').disabled = (index === 0);
+            document.getElementById('btnPrev').className = index === 0 
+                ? "px-4 py-2 text-sm font-bold text-slate-300 bg-slate-100 rounded-xl cursor-not-allowed flex items-center gap-2"
+                : "px-4 py-2 text-sm font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all flex items-center gap-2";
+
+            // Next button text
+            const isLast = (index === questionBank.length - 1);
+            document.getElementById('txtBtnAction').textContent = isLast ? "Selesai" : "Selanjutnya";
+
+            // Highlight in grid
+            updateGridActiveHighlight(index);
+        }
+
+        // Option Styling Helper
+        function getOptionStyle(qIdx, optIdx) {
+            const baseClass = "w-full p-4 rounded-xl border text-left transition-all duration-200 outline-none flex items-center ";
+            const selectedIdx = selectedAnswers[qIdx];
+            const correctIdx = questionBank[qIdx].answer;
+
+            if (currentMode === 'latihan') {
+                if (selectedIdx !== null) {
+                    // Option is already selected
+                    if (optIdx === correctIdx) {
+                        // This is correct answer
+                        return baseClass + "bg-emerald-50 border-emerald-500 shadow-sm shadow-emerald-500/10 pointer-events-none";
+                    } else if (optIdx === selectedIdx) {
+                        // This was selected and it is wrong
+                        return baseClass + "bg-rose-50 border-rose-500 shadow-sm shadow-rose-500/10 pointer-events-none";
+                    } else {
+                        // Other non-selected options
+                        return baseClass + "bg-slate-50/50 border-slate-200 opacity-60 pointer-events-none";
+                    }
+                } else {
+                    // Not answered yet
+                    return baseClass + "bg-white border-slate-200 hover:border-blue-500 hover:bg-blue-50/20 active:scale-[0.99]";
+                }
+            } else {
+                // Exam Mode
+                if (optIdx === selectedIdx) {
+                    return baseClass + "bg-blue-50 border-blue-600 shadow-sm shadow-blue-500/5";
+                } else {
+                    return baseClass + "bg-white border-slate-200 hover:border-slate-300 active:scale-[0.99]";
+                }
+            }
+        }
+
+        function getOptionBadgeStyle(qIdx, optIdx) {
+            const selectedIdx = selectedAnswers[qIdx];
+            const correctIdx = questionBank[qIdx].answer;
+
+            if (currentMode === 'latihan') {
+                if (selectedIdx !== null) {
+                    if (optIdx === correctIdx) {
+                        return "bg-emerald-600 text-white border-emerald-600";
+                    } else if (optIdx === selectedIdx) {
+                        return "bg-rose-600 text-white border-rose-600";
+                    }
+                }
+            } else {
+                if (optIdx === selectedIdx) {
+                    return "bg-blue-600 text-white border-blue-600";
+                }
+            }
+            return "bg-slate-50 text-slate-500 border-slate-200";
+        }
+
+        // Selection Trigger
+        function selectOption(optIdx) {
+            if (currentMode === 'latihan' && selectedAnswers[currentQuestionIndex] !== null) return; // Freeze in practice mode
+
+            selectedAnswers[currentQuestionIndex] = optIdx;
+            
+            // Re-render
+            showQuestion(currentQuestionIndex);
+            updateProgress();
+            renderGridNavigator();
+        }
+
+        // Next / Prev Navigation
+        function nextQuestion() {
+            if (currentQuestionIndex < questionBank.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function handleActionButton() {
+            if (currentQuestionIndex === questionBank.length - 1) {
+                confirmSubmit();
+            } else {
+                nextQuestion();
+            }
+        }
+
+        // Toggle Bookmark
+        function toggleBookmark() {
+            bookmarks[currentQuestionIndex] = !bookmarks[currentQuestionIndex];
+            showQuestion(currentQuestionIndex);
+            renderGridNavigator();
+        }
+
+        // Filter Questions
+        function filterQuestions(val) {
+            activeModuleFilter = val;
+            const filterLabel = document.getElementById('lblFilterActive');
+
+            if (val === 'all') {
+                filteredQuestionsIndices = Array.from({length: 100}, (_, i) => i);
+                filterLabel.textContent = "Semua";
+                filterLabel.className = "text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold";
+            } else {
+                filteredQuestionsIndices = [];
+                questionBank.forEach((q, idx) => {
+                    if (q.module.startsWith(val)) {
+                        filteredQuestionsIndices.push(idx);
+                    }
+                });
+                filterLabel.textContent = val;
+                filterLabel.className = "text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold";
+            }
+
+            renderGridNavigator();
+            
+            // Jump to first available filtered question
+            if (filteredQuestionsIndices.length > 0) {
+                showQuestion(filteredQuestionsIndices[0]);
+            }
+        }
+
+        // Render Navigator Grid Panel (1-100)
+        function renderGridNavigator() {
+            const grid = document.getElementById('gridNavigator');
+            grid.innerHTML = '';
+
+            questionBank.forEach((q, idx) => {
+                // If filtered, grey out or hide non-matching
+                const isFilteredOut = !filteredQuestionsIndices.includes(idx);
+                if (isFilteredOut) return;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => showQuestion(idx);
+                btn.textContent = idx + 1;
+                
+                let btnStyle = "w-full aspect-square text-xs font-bold rounded-lg flex items-center justify-center transition-all border outline-none ";
+                
+                // Color states
+                const isAnswered = selectedAnswers[idx] !== null;
+                const isBookmarked = bookmarks[idx];
+
+                if (idx === currentQuestionIndex) {
+                    btnStyle += "ring-2 ring-indigo-500 ring-offset-1 ";
+                }
+
+                if (currentMode === 'latihan') {
+                    if (isAnswered) {
+                        const isCorrect = selectedAnswers[idx] === questionBank[idx].answer;
+                        if (isCorrect) {
+                            btnStyle += "bg-emerald-500 text-white border-emerald-600";
+                        } else {
+                            btnStyle += "bg-rose-500 text-white border-rose-600";
+                        }
+                    } else if (isBookmarked) {
+                        btnStyle += "bg-yellow-400 text-slate-900 border-yellow-500";
+                    } else {
+                        btnStyle += "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+                    }
+                } else {
+                    // Exam mode
+                    if (isBookmarked) {
+                        btnStyle += "bg-yellow-400 text-slate-900 border-yellow-500";
+                    } else if (isAnswered) {
+                        btnStyle += "bg-blue-600 text-white border-blue-700";
+                    } else {
+                        btnStyle += "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+                    }
+                }
+
+                btn.className = btnStyle;
+                grid.appendChild(btn);
+            });
+        }
+
+        function updateGridActiveHighlight(activeIndex) {
+            const gridButtons = document.getElementById('gridNavigator').children;
+            // Iterate and find active index text matching index + 1
+            Array.from(gridButtons).forEach(btn => {
+                const num = parseInt(btn.textContent) - 1;
+                if (num === activeIndex) {
+                    btn.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-1');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-indigo-500', 'ring-offset-1');
+                }
+            });
+        }
+
+        // Progress Tracking
+        function updateProgress() {
+            const answeredCount = selectedAnswers.filter(ans => ans !== null).length;
+            const progressPercent = Math.round((answeredCount / 100) * 100);
+
+            // Update DOM progress
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+            document.getElementById('txtProgressPercent').textContent = `${progressPercent}% (${answeredCount} dari 100 Soal)`;
+
+            // Calculate current score in practice mode
+            if (currentMode === 'latihan') {
+                let correct = 0;
+                let incorrect = 0;
+                selectedAnswers.forEach((ans, idx) => {
+                    if (ans !== null) {
+                        if (ans === questionBank[idx].answer) correct++;
+                        else incorrect++;
+                    }
+                });
+                const totalAttempted = correct + incorrect;
+                if (totalAttempted > 0) {
+                    const tempScore = ((correct / totalAttempted) * 100).toFixed(1);
+                    document.getElementById('txtCurrentScore').textContent = tempScore;
+                    document.getElementById('txtCurrentScore').className = "font-bold text-lg text-emerald-600";
+                } else {
+                    document.getElementById('txtCurrentScore').textContent = "-";
+                    document.getElementById('txtCurrentScore').className = "font-bold text-lg text-slate-400";
+                }
+            } else {
+                document.getElementById('txtCurrentScore').textContent = "Rahasia";
+                document.getElementById('txtCurrentScore').className = "font-bold text-sm text-amber-600 uppercase";
+            }
+        }
+
+        // Custom Modal / Dialogue
+        function showModal(title, body, actions) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').textContent = body;
+
+            const actionsContainer = document.getElementById('modalActions');
+            actionsContainer.innerHTML = '';
+
+            actions.forEach(act => {
+                const btn = document.createElement('button');
+                btn.textContent = act.text;
+                btn.className = `px-4 py-2 text-xs font-bold rounded-xl transition-all ${act.class}`;
+                btn.onclick = act.action;
+                actionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('modalOverlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+        }
+
+        // Exam Submission Confirmation
+        function confirmSubmit() {
+            const answeredCount = selectedAnswers.filter(ans => ans !== null).length;
+            const unansweredCount = 100 - answeredCount;
+
+            let warningText = `Anda telah menjawab ${answeredCount} dari 100 soal. `;
+            if (unansweredCount > 0) {
+                warningText += `Masih ada ${unansweredCount} soal yang BELUM dijawab. `;
+            }
+            warningText += "Apakah Anda yakin ingin mengakhiri ujian dan mengumpulkan jawaban?";
+
+            showModal(
+                "KONFIRMASI SELESAI UJIAN",
+                warningText,
+                [
+                    { text: "Lanjutkan Mengerjakan", class: "bg-slate-200 text-slate-700 hover:bg-slate-300", action: closeModal },
+                    { text: "Ya, Kirim Sekarang", class: "bg-indigo-600 text-white hover:bg-indigo-700", action: () => {
+                        closeModal();
+                        gradeExam();
+                    }}
+                ]
+            );
+        }
+
+        // Grade Exam and Render Detailed Report
+        function gradeExam() {
+            clearInterval(timerInterval);
+
+            let correct = 0;
+            let wrong = 0;
+
+            // Module specific performance counters
+            const moduleAnalysis = {
+                "Modul 1": { total: 0, correct: 0 },
+                "Modul 2": { total: 0, correct: 0 },
+                "Modul 3": { total: 0, correct: 0 },
+                "Modul 4": { total: 0, correct: 0 },
+                "Modul 5": { total: 0, correct: 0 },
+                "Modul 8": { total: 0, correct: 0 }
+            };
+
+            questionBank.forEach((q, idx) => {
+                const isCorrect = selectedAnswers[idx] === q.answer;
+                if (selectedAnswers[idx] !== null) {
+                    if (isCorrect) correct++;
+                    else wrong++;
+                } else {
+                    wrong++; // Unanswered is treated as wrong
+                }
+
+                // Match with module analysis
+                Object.keys(moduleAnalysis).forEach(modKey => {
+                    if (q.module.startsWith(modKey)) {
+                        moduleAnalysis[modKey].total++;
+                        if (isCorrect && selectedAnswers[idx] !== null) {
+                            moduleAnalysis[modKey].correct++;
+                        }
+                    }
+                });
+            });
+
+            const finalScore = ((correct / 100) * 100);
+
+            // Determine Grade & Predicate based on UT standard
+            let grade = "E";
+            let statusText = "TIDAK LULUS (MENGULANG)";
+            let statusColor = "text-rose-600";
+            let gradeColor = "text-rose-700";
+
+            if (finalScore >= 80) {
+                grade = "A";
+                statusText = "LULUS SANGAT MEMUASKAN";
+                statusColor = "text-emerald-600";
+                gradeColor = "text-emerald-700";
+            } else if (finalScore >= 70) {
+                grade = "B";
+                statusText = "LULUS MEMUASKAN";
+                statusColor = "text-blue-600";
+                gradeColor = "text-blue-700";
+            } else if (finalScore >= 55) {
+                grade = "C";
+                statusText = "LULUS (CUKUP)";
+                statusColor = "text-yellow-600";
+                gradeColor = "text-yellow-700";
+            } else if (finalScore >= 30) {
+                grade = "D";
+                statusText = "LULUS (HAMPIR CUKUP)";
+                statusColor = "text-orange-500";
+                gradeColor = "text-orange-600";
+            }
+
+            // Update UI
+            document.getElementById('lblResultScore').textContent = finalScore.toFixed(1);
+            document.getElementById('lblResultCorrect').textContent = correct;
+            document.getElementById('lblResultWrong').textContent = wrong;
+            document.getElementById('lblResultGrade').textContent = grade;
+            document.getElementById('lblResultGrade').className = `text-4xl font-extrabold ${gradeColor} header-font`;
+            document.getElementById('lblResultStatus').textContent = statusText;
+            document.getElementById('lblResultStatus').className = `text-[10px] font-bold block mt-1 uppercase ${statusColor}`;
+
+            // Render Competency Bars
+            const competencyBars = document.getElementById('competencyBars');
+            competencyBars.innerHTML = '';
+
+            Object.keys(moduleAnalysis).forEach(modKey => {
+                const data = moduleAnalysis[modKey];
+                const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+                
+                // Set feedback text based on performance
+                let feedbackText = "Perlu Belajar Lagi";
+                let barColor = "bg-rose-500";
+                if (pct >= 80) {
+                    feedbackText = "Sangat Menguasai";
+                    barColor = "bg-emerald-500";
+                } else if (pct >= 55) {
+                    feedbackText = "Cukup Menguasai";
+                    barColor = "bg-yellow-500";
+                }
+
+                const item = document.createElement('div');
+                item.className = "flex flex-col gap-1";
+                item.innerHTML = `
+                    <div class="flex justify-between text-xs font-semibold text-slate-700">
+                        <span>${modKey} (${data.total} Soal)</span>
+                        <span class="text-slate-500">${data.correct}/${data.total} Benar (${pct}%) - <strong class="${pct >= 55 ? 'text-emerald-600' : 'text-rose-500'}">${feedbackText}</strong></span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div class="${barColor} h-full" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                competencyBars.appendChild(item);
+            });
+
+            // Reveal Result Screen
+            document.getElementById('resultScreen').classList.remove('hidden');
+        }
+
+        // Review Wrong Answers on Practice Mode
+        function reviewWrongAnswers() {
+            document.getElementById('resultScreen').classList.add('hidden');
+            // Force switch to 'latihan' mode to see answers and explanations
+            applyModeChange('latihan');
+        }
+
+        function restartExam() {
+            document.getElementById('resultScreen').classList.add('hidden');
+            resetAllData();
+            applyModeChange(currentMode);
+        }
+    </script>
+</body>
+</html>
+
